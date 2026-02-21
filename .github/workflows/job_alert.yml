@@ -1,0 +1,50 @@
+name: Job Alert Scheduler
+
+on:
+  schedule:
+    # Daytime: every 2 hours from 9 AM to 9 PM CST (UTC-6)
+    - cron: '0 15,17,19,21,23 * * *'   # 9AM, 11AM, 1PM, 3PM, 5PM CST
+    - cron: '0 1,3 * * *'              # 7PM, 9PM CST
+    # Overnight catch: 11:30 PM CST
+    - cron: '30 5 * * *'               # 11:30PM CST
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  run-job-alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore seen jobs cache
+        uses: actions/cache/restore@v4
+        with:
+          path: seen_jobs_v2.json
+          key: seen-jobs-${{ github.run_id }}
+          restore-keys: |
+            seen-jobs-
+
+      - name: Run job alert pipeline
+        env:
+          JOB_ALERT_SENDER_EMAIL: ${{ secrets.JOB_ALERT_SENDER_EMAIL }}
+          JOB_ALERT_SENDER_PASSWORD: ${{ secrets.JOB_ALERT_SENDER_PASSWORD }}
+          JOB_ALERT_RECIPIENT_EMAIL: ${{ secrets.JOB_ALERT_RECIPIENT_EMAIL }}
+        run: python main.py --once
+
+      - name: Save seen jobs cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: seen_jobs_v2.json
+          key: seen-jobs-${{ github.run_id }}
