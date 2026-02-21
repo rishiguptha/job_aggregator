@@ -56,8 +56,10 @@ async def fetch_lever(company: str, session: aiohttp.ClientSession) -> list[dict
                     pass
             
             from src.config.settings import settings
-            from src.filters.date import is_posted_today
+            from src.filters.date import is_posted_today, is_posted_current_year
             if settings.FETCH_ONLY_TODAY and not is_posted_today(posted_at, "lever"):
+                continue
+            if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "lever"):
                 continue
 
             jobs.append({

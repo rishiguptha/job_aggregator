@@ -40,8 +40,10 @@ async def fetch_greenhouse(company: str, session: aiohttp.ClientSession) -> list
             posted_at = job.get("updated_at", "")
             
             from src.config.settings import settings
-            from src.filters.date import is_posted_today
+            from src.filters.date import is_posted_today, is_posted_current_year
             if settings.FETCH_ONLY_TODAY and not is_posted_today(posted_at, "greenhouse"):
+                continue
+            if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "greenhouse"):
                 continue
 
             jobs.append({

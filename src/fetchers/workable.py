@@ -53,8 +53,10 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
             posted_at = job.get("published_on", "")
             
             from src.config.settings import settings
-            from src.filters.date import is_posted_today
+            from src.filters.date import is_posted_today, is_posted_current_year
             if settings.FETCH_ONLY_TODAY and not is_posted_today(posted_at, "workable"):
+                continue
+            if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "workable"):
                 continue
 
             jobs.append({

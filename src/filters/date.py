@@ -40,3 +40,26 @@ def is_posted_today(date_str: str, platform: str) -> bool:
     except TypeError as e:
         log.warning(f"[{platform}] Invalid date type {type(date_str)} for '{date_str}': {e}")
         return False
+
+
+def is_posted_current_year(date_str: str, platform: str) -> bool:
+    """Check if a job was posted in the current year."""
+    if not date_str:
+        return False
+
+    try:
+        if platform == "lever":
+            if isinstance(date_str, (int, float)):
+                dt = datetime.fromtimestamp(date_str / 1000.0)
+            else:
+                clean_str = date_str.replace("Z", "+00:00")
+                dt = datetime.fromisoformat(clean_str)
+        else:
+            clean_str = date_str.replace("Z", "+00:00")
+            dt = datetime.fromisoformat(clean_str)
+
+        return dt.year == datetime.now().year
+
+    except (ValueError, TypeError) as e:
+        log.debug(f"[{platform}] Could not parse date '{date_str}' for year check: {e}")
+        return False

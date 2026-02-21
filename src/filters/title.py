@@ -11,10 +11,18 @@ def matches_title(title: str) -> str | None:
         
     match_type = None
 
+    # Check plain-text primary keywords
     for kw in settings.TITLE_KEYWORDS:
         if kw in t:
             match_type = "primary"
             break
+
+    # Check regex-based primary keywords (for abbreviations like SDE)
+    if not match_type:
+        for pattern in getattr(settings, "TITLE_KEYWORDS_REGEX", []):
+            if re.search(pattern, t):
+                match_type = "primary"
+                break
 
     if not match_type:
         for kw in settings.BONUS_KEYWORDS:

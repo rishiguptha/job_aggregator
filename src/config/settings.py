@@ -15,8 +15,9 @@ class Settings:
     _recipients_str = os.getenv("JOB_ALERT_RECIPIENT_EMAIL", "")
     RECIPIENT_EMAILS = [email.strip() for email in _recipients_str.split(",") if email.strip()]
     # Job Keywords
-    TITLE_KEYWORDS = ["data engineer", "data engineering"]
-    BONUS_KEYWORDS = ["analytics engineer", "etl engineer", "pipeline engineer"]
+    TITLE_KEYWORDS = ["data engineer", "data engineering", "software development engineer", "ai engineer"]
+    TITLE_KEYWORDS_REGEX = [r'\bsde\b']  # Short abbreviations needing word-boundary matching
+    BONUS_KEYWORDS = ["analytics engineer", "etl engineer", "pipeline engineer", "ml engineer", "machine learning engineer"]
     EXCLUDE_TITLE_PATTERN = r'\b(senior|staff|manager|principal|lead|director|vp|head|president|sr|intern|internship|co-op|coop)\b'
     EXCLUDE_CLEARANCE_PATTERN = r'(?<!no\s)(?<!not\s)(?<!without\s)\b(top secret|ts/?sci|polygraph|security clearance|active clearance|top-secret|clearance required|us citizenship(?: required)?|u\.s\. citizen(?:ship)?)\b'
     EXCLUDE_PHD_PATTERN = r'\b(ph\.?d\.?)\b(?!\s+(?:not\s+required|optional|preferred|or\s+equivalent|or\s+master))'
