@@ -66,13 +66,15 @@ def send_email(jobs: list[dict]):
     msg = MIMEMultipart("alternative")
     msg["Subject"] = f"🔔 {len(jobs)} New Data Engineer Jobs — {datetime.now().strftime('%b %d, %I:%M %p')}"
     msg["From"] = settings.SENDER_EMAIL
-    msg["To"] = settings.RECIPIENT_EMAIL
+    msg["To"] = ", ".join(settings.RECIPIENT_EMAILS)
     msg.attach(MIMEText("\n".join(html), "html"))
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(settings.SENDER_EMAIL, settings.SENDER_PASSWORD)
-            server.sendmail(settings.SENDER_EMAIL, settings.RECIPIENT_EMAIL, msg.as_string())
+            server.sendmail(settings.SENDER_EMAIL, settings.RECIPIENT_EMAILS, msg.as_string())
         log.info(f"✅ Email sent: {len(primary)} primary + {len(bonus)} bonus matches")
     except Exception as e:
+        import traceback
         log.error(f"❌ Email failed: {e}")
+        log.error(traceback.format_exc())

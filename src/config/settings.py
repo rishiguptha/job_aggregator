@@ -1,15 +1,19 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Base working directory
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / ".env")
+
 class Settings:
     # Email Config
-    SENDER_EMAIL = os.getenv("JOB_ALERT_SENDER_EMAIL", "rishiguptha.mankala@gmail.com")
-    SENDER_PASSWORD = os.getenv("JOB_ALERT_SENDER_PASSWORD", "ekiyognydkdvxned")
-    RECIPIENT_EMAIL = os.getenv("JOB_ALERT_RECIPIENT_EMAIL", "rishiguptha.mankala@gmail.com")
-
+    SENDER_EMAIL = os.getenv("JOB_ALERT_SENDER_EMAIL", "")
+    SENDER_PASSWORD = os.getenv("JOB_ALERT_SENDER_PASSWORD", "")
+    _recipients_str = os.getenv("JOB_ALERT_RECIPIENT_EMAIL", "")
+    RECIPIENT_EMAILS = [email.strip() for email in _recipients_str.split(",") if email.strip()]
     # Job Keywords
     TITLE_KEYWORDS = ["data engineer", "data engineering"]
     BONUS_KEYWORDS = ["analytics engineer", "etl engineer", "pipeline engineer"]
@@ -22,7 +26,7 @@ class Settings:
     # Filters
     MAX_EXPERIENCE_YEARS = 2
     FILTER_LOCATION_US = True
-    FETCH_ONLY_TODAY = True
+    FETCH_ONLY_TODAY = False
 
     # App Config
     CHECK_INTERVAL_MINUTES = 60
