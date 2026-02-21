@@ -27,7 +27,7 @@ class Settings:
     # Filters
     MAX_EXPERIENCE_YEARS = 2
     FILTER_LOCATION_US = True
-    FETCH_ONLY_TODAY = False
+    FETCH_ONLY_TODAY = True
 
     # App Config
     CHECK_INTERVAL_MINUTES = 60

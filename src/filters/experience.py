@@ -7,7 +7,8 @@ EXP_PATTERNS = [
     r'(?:minimum|at\s+least|min\.?)\s*(\d+)\s*years?',
     r'(\d+)\s*\+?\s*years?\s+of\s+(?:professional|relevant|related|hands-on|industry|proven|practical|work|software|data)',
     r'(\d+)\s*\+?\s*yrs?\s*(?:of\s+)?(?:(?:professional|relevant|related|hands-on|industry|proven|practical|work|software|data)\s+)?(?:experience|exp)',
-    r'(\d+)\s*\+?\s*years?\s+(?:working\s+)?(?:in|as\s+a?)\s+(?:\w+\s+){0,4}(?:data|analytics|software|engineer(?:ing)?|field|role|industry|capacity|environment)',
+    r'(\d+)\s*\+?\s*years?\s+(?:working\s+)?(?:in|on|with|as\s+a?)\s+(?:\w+\s+){0,4}(?:data|analytics|software|engineer(?:ing)?|field|role|industry|capacity|environment|ingestion|pipeline|development|cloud|machine\s+learning|ml|ai)',
+    r'(\d+)\s*\+?\s*years?\s+of\s+\w+',  # Generic: "3+ years of <anything>"
 ]
 
 def extract_max_experience(text: str) -> int | None:
