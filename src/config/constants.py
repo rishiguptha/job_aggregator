@@ -3,4 +3,5 @@ PLATFORM_ICONS = {
     "lever": "🏢",
     "ashby": "🔷",
     "workable": "⚙️",
+    "oraclecloud": "☁️",
 }

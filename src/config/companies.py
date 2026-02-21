@@ -1289,5 +1289,17 @@ COMPANY_SLUGS = {
         "contentful", "deepl", "ecosia", "n26", "numbrs",
         "omio", "personio-jobs", "pitch", "raisin", "smallpdf",
         "taxfix", "typeform", "workable",
-    ]
+    ],
+
+    # ── Oracle Cloud HCM ──────────────────────────────────────────
+    # Each entry is a dict: { name, subdomain, region, site }
+    # To find these values for a company, visit their career page and look at the URL:
+    #   https://{subdomain}.fa.{region}.oraclecloud.com/hcmUI/CandidateExperience/en/sites/{site}/...
+    # Example: Oracle's career page -> subdomain=eeho, region=us2, site=CX_1
+    # For companies with custom domains (e.g., careers.autozone.com), use "domain" instead of subdomain+region
+    "oraclecloud": [
+        {"name": "oracle", "subdomain": "eeho", "region": "us2", "site": "CX_1"},
+        {"name": "ford", "subdomain": "efds", "region": "em5", "site": "CX_1"},
+        {"name": "autozone", "domain": "careers.autozone.com", "site": "CX_1"},
+    ],
 }
