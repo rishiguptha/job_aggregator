@@ -29,7 +29,7 @@ class Settings:
     # Filters
     MAX_EXPERIENCE_YEARS = 2
     FILTER_LOCATION_US = True
-    FETCH_ONLY_TODAY = False
+    FETCH_ONLY_TODAY = True
 
     # H1B Sponsorship
     H1B_SPONSORS = H1B_SPONSORS
