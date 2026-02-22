@@ -56,7 +56,7 @@ cd job_aggregator
 
 **2. Install dependencies**
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 *(Key dependencies: `aiohttp`, `requests`, `schedule`)*
 
@@ -72,29 +72,29 @@ The application uses `argparse` and has a few different operational modes:
 **Dry-Run (Test Execution)**
 Runs the asynchronous fetchers and prints matching roles to the terminal without modifying the local cache or sending an email.
 ```bash
-python main.py --dry-run
+uv run main.py --dry-run
 ```
 
 **Run Once**
 Executes the data pipeline exactly one time, emails the results, updates the tracker, and exits. Perfect for piping into a scheduled cron job.
 ```bash
-python main.py --once
+uv run main.py --once
 ```
 
 **Daemon Mode (Continuous Execution)**
 Runs continuously in the foreground, triggering the aggregator every `CHECK_INTERVAL_MINUTES` as defined in `settings.py`.
 ```bash
-python main.py
+uv run main.py
 ```
 
 **Test Email Setup**
 Verifies your SMTP functionality by pushing a mock email payload.
 ```bash
-python main.py --test-email
+uv run main.py --test-email
 ```
 
 **View Company Stats**
 Prints a breakdown of how many active ATS platforms and domains are currently being tracked.
 ```bash
-python main.py --stats
+uv run main.py --stats
 ```

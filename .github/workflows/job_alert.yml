@@ -20,14 +20,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version-file: "pyproject.toml"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: uv sync
 
       - name: Restore seen jobs cache
         uses: actions/cache/restore@v4
@@ -42,7 +47,7 @@ jobs:
           JOB_ALERT_SENDER_EMAIL: ${{ secrets.JOB_ALERT_SENDER_EMAIL }}
           JOB_ALERT_SENDER_PASSWORD: ${{ secrets.JOB_ALERT_SENDER_PASSWORD }}
           JOB_ALERT_RECIPIENT_EMAIL: ${{ secrets.JOB_ALERT_RECIPIENT_EMAIL }}
-        run: python main.py --once
+        run: uv run main.py --once
 
       - name: Save seen jobs cache
         uses: actions/cache/save@v4

@@ -90,20 +90,33 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
 
                 job_url = f"{base_url}/en-US/{site}{external_path}"
 
-                # We don't have description from the list endpoint — requires a second request.
-                # To be efficient, we'll skip the detail fetch and mark filters as passing by default.
-                # The title filter already narrows significantly.
+                # Fetch job details to get the description for accurate filtering
+                detail_url = f"https://{instance}.myworkdayjobs.com/wday/cxs/{company_slug}/{site}{external_path}"
+                description = ""
+                try:
+                    async with session.get(detail_url, headers=HEADERS, timeout=aiohttp.ClientTimeout(total=10)) as d_resp:
+                        if d_resp.status == 200:
+                            detail_data = await d_resp.json()
+                            description = detail_data.get("jobPostingInfo", {}).get("jobDescription", "")
+                except Exception as e:
+                    log.debug(f"Workday detail fetch error ({name}): {e}")
+
+                clean_text = re.sub(r'<[^>]+>', ' ', html.unescape(description)).lower() if description else ""
+                passes_exp, max_exp = passes_experience_filter(clean_text) if clean_text else (True, None)
+                passes_cl = passes_clearance_filter(clean_text) if clean_text else True
+                passes_p = passes_phd_filter(clean_text) if clean_text else True
+
                 all_jobs.append({
                     "title": title,
                     "company": name,
                     "platform": "workday",
                     "url": job_url,
                     "location": location,
-                    "description": "",
-                    "experience": None,
-                    "passes_filter": True,
-                    "passes_clearance": True,
-                    "passes_phd": True,
+                    "description": clean_text[:500],
+                    "experience": max_exp,
+                    "passes_filter": passes_exp,
+                    "passes_clearance": passes_cl,
+                    "passes_phd": passes_p,
                     "match_type": match_type,
                     "posted_at": posted_on,
                 })
