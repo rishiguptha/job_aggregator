@@ -8,6 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Load environment variables from .env file
 load_dotenv(BASE_DIR / ".env")
 
+from src.config.sponsors import H1B_SPONSORS
+
 class Settings:
     # Email Config
     SENDER_EMAIL = os.getenv("JOB_ALERT_SENDER_EMAIL", "")
@@ -27,7 +29,10 @@ class Settings:
     # Filters
     MAX_EXPERIENCE_YEARS = 2
     FILTER_LOCATION_US = True
-    FETCH_ONLY_TODAY = True
+    FETCH_ONLY_TODAY = False
+
+    # H1B Sponsorship
+    H1B_SPONSORS = H1B_SPONSORS
 
     # App Config
     CHECK_INTERVAL_MINUTES = 60

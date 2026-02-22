@@ -4,4 +4,5 @@ PLATFORM_ICONS = {
     "ashby": "🔷",
     "workable": "⚙️",
     "oraclecloud": "☁️",
+    "workday": "💼",
 }

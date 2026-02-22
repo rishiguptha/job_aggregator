@@ -7,6 +7,7 @@ from src.fetchers.lever import fetch_lever
 from src.fetchers.ashby import fetch_ashby
 from src.fetchers.workable import fetch_workable
 from src.fetchers.oraclecloud import fetch_oraclecloud
+from src.fetchers.workday import fetch_workday
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -43,9 +44,11 @@ async def fetch_all_jobs() -> list[dict]:
     async with aiohttp.ClientSession(connector=conn) as session:
         for platform, companies in COMPANY_SLUGS.items():
             if platform == "oraclecloud":
-                # Oracle Cloud uses dict-based configs and its own fetcher
                 for company_config in companies:
                     tasks.append(fetch_with_semaphore(semaphore, fetch_oraclecloud, platform, company_config, session))
+            elif platform == "workday":
+                for company_config in companies:
+                    tasks.append(fetch_with_semaphore(semaphore, fetch_workday, platform, company_config, session))
             else:
                 fetcher = FETCHERS.get(platform)
                 if not fetcher:

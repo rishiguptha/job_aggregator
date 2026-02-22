@@ -1336,5 +1336,60 @@ COMPANY_SLUGS = {
         {"name": "alorica", "domain": "fa-euxw-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1"},
         {"name": "exp_engineering", "subdomain": "elcn", "region": "us2", "site": "CX"},
     ],
+
+    # ── Workday ───────────────────────────────────────────────
+    # Each entry is a dict: { name, instance, site }
+    # instance = "{company}.{wd_number}" (e.g., "nvidia.wd5")
+    # site = career site path (found in the URL: myworkdayjobs.com/en-US/{site}/...)
+    # To find these, visit {company}.wd{N}.myworkdayjobs.com and look at the URL path.
+    "workday": [
+        # ── Big Tech & Software ───────────────────────────────
+        {"name": "netflix", "instance": "netflix.wd1", "site": "Netflix"},
+        {"name": "nvidia", "instance": "nvidia.wd5", "site": "NVIDIAExternalCareerSite"},
+        {"name": "salesforce", "instance": "salesforce.wd12", "site": "External_Career_Site"},
+        {"name": "salesforce_intern", "instance": "salesforce.wd12", "site": "Futureforce_Internships"},
+        {"name": "adobe", "instance": "adobe.wd5", "site": "external_experienced"},
+        {"name": "broadcom", "instance": "broadcom.wd1", "site": "External_Career"},
+        {"name": "intel", "instance": "intel.wd1", "site": "External"},
+        {"name": "dell", "instance": "dell.wd1", "site": "External"},
+        {"name": "snap", "instance": "snapchat.wd1", "site": "snap"},
+        {"name": "zillow", "instance": "zillow.wd5", "site": "Zillow_Group_External"},
+        {"name": "autodesk", "instance": "autodesk.wd1", "site": "Ext"},
+        {"name": "workday_co", "instance": "workday.wd5", "site": "Workday"},
+        {"name": "workiva", "instance": "workiva.wd503", "site": "careers"},
+        {"name": "concentrix", "instance": "cnx.wd1", "site": "external_global"},
+        # ── Cybersecurity ─────────────────────────────────────
+        {"name": "crowdstrike", "instance": "crowdstrike.wd5", "site": "crowdstrikecareers"},
+        # ── Finance & Banking ─────────────────────────────────
+        {"name": "capital_one", "instance": "capitalone.wd12", "site": "Capital_One"},
+        {"name": "visa", "instance": "visa.wd5", "site": "Visa"},
+        {"name": "paypal", "instance": "paypal.wd1", "site": "jobs"},
+        {"name": "mastercard", "instance": "mastercard.wd1", "site": "CorporateCareers"},
+        {"name": "transunion", "instance": "transunion.wd5", "site": "TransUnion"},
+        {"name": "pnc", "instance": "pnc.wd5", "site": "External"},
+        {"name": "keybank", "instance": "keybank.wd5", "site": "External_Career_Site"},
+        {"name": "mufg", "instance": "mufgub.wd3", "site": "MUFG-Careers"},
+        {"name": "lseg", "instance": "lseg.wd3", "site": "Careers"},
+        {"name": "wex", "instance": "wexinc.wd5", "site": "WEXInc"},
+        # ── Consulting & Services ─────────────────────────────
+        {"name": "accenture", "instance": "accenture.wd103", "site": "AccentureCareers"},
+        {"name": "pwc", "instance": "pwc.wd3", "site": "US_Experienced_Careers"},
+        {"name": "jll", "instance": "jll.wd1", "site": "jllcareers"},
+        # ── Retail & Consumer ─────────────────────────────────
+        {"name": "walmart", "instance": "walmart.wd5", "site": "WalmartExternal"},
+        {"name": "target", "instance": "target.wd5", "site": "targetcareers"},
+        {"name": "conagra", "instance": "conagrabrands.wd1", "site": "Careers_US"},
+        # ── Media & Entertainment ─────────────────────────────
+        {"name": "draftkings", "instance": "draftkings.wd1", "site": "DraftKings"},
+        {"name": "fox", "instance": "fox.wd1", "site": "Domestic"},
+        {"name": "wonder", "instance": "wonder.wd1", "site": "WG"},
+        # ── Healthcare & Life Sciences ────────────────────────
+        {"name": "bms", "instance": "bristolmyerssquibb.wd5", "site": "BMS"},
+        {"name": "danaher", "instance": "danaher.wd1", "site": "DanaherJobs"},
+        # ── Industrial & Insurance ────────────────────────────
+        {"name": "3m", "instance": "3m.wd1", "site": "Search"},
+        {"name": "travelers", "instance": "travelers.wd5", "site": "External"},
+    ],
 }
+
 

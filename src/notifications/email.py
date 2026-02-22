@@ -2,12 +2,21 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
+import re
 from src.config.settings import settings
 from src.config.companies import COMPANY_SLUGS
 from src.config.constants import PLATFORM_ICONS
+from src.config.sponsors import H1B_SPONSORS
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
+
+def _normalize_company(name: str) -> str:
+    if not isinstance(name, str):
+        return ""
+    name = str(name).lower()
+    name = re.sub(r'\b(inc\.?|llc|group|corp\.?|corporation|ltd\.?|limited|co\.?|company|services|holdings)\b', '', name)
+    return re.sub(r'[^a-z0-9]', '', name)
 
 def send_email(jobs: list[dict]):
     """Send formatted HTML email with job listings."""
@@ -31,13 +40,18 @@ def send_email(jobs: list[dict]):
         badge = "🎯 Primary" if job["match_type"] == "primary" else "💡 Bonus"
         border_color = "#1a73e8" if job["match_type"] == "primary" else "#f59e0b"
 
+        is_sponsor = _normalize_company(job['company']) in H1B_SPONSORS
+        sponsor_html = f'<span style="font-size:12px; padding:2px 8px; border-radius:12px; background:#e8f5e9; color:#2e7d32; margin-left:8px;">🛂 H1B Sponsor</span>' if is_sponsor else ''
+
         html.append(f"""
         <div style="margin-bottom:16px; padding:14px; border-left:4px solid {border_color};
                     background:#fafafa; border-radius:4px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3 style="margin:0; font-size:16px;">#{i} — {job['title']}</h3>
-                <span style="font-size:12px; padding:2px 8px; border-radius:12px;
-                       background:{'#e3f2fd' if job['match_type'] == 'primary' else '#fff8e1'};">{badge}</span>
+                <div>
+                    <span style="font-size:12px; padding:2px 8px; border-radius:12px;
+                           background:{'#e3f2fd' if job['match_type'] == 'primary' else '#fff8e1'};">{badge}</span>{sponsor_html}
+                </div>
             </div>
             <p style="color:#555; margin:4px 0; font-size:14px;">
                 {icon} {job['platform'].title()} · <b>{job['company']}</b> · 📍 {job['location']}
