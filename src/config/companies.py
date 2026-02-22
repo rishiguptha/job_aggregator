@@ -1298,28 +1298,43 @@ COMPANY_SLUGS = {
     # Example: Oracle's career page -> subdomain=eeho, region=us2, site=CX_1
     # For companies with custom domains (e.g., careers.autozone.com), use "domain" instead of subdomain+region
     "oraclecloud": [
-        # Tech / Software
+        # ── Finance & Banking ─────────────────────────────────────
+        {"name": "jpmorgan", "domain": "jpmc.fa.oraclecloud.com", "site": "CX_1001"},
+        {"name": "goldman_sachs", "subdomain": "hdpc", "region": "us2", "site": "CX_1"},
+        {"name": "goldman_sachs_campus", "subdomain": "hdpc", "region": "us2", "site": "CampusHiring"},
+        {"name": "bny_mellon", "subdomain": "eofe", "region": "us2", "site": "CX_1001"},
+        {"name": "dtcc", "subdomain": "ebxr", "region": "us2", "site": "CX_1"},
+        {"name": "cantor_fitzgerald", "subdomain": "hdow", "region": "us6", "site": "CX_1003"},
+        {"name": "navy_federal", "domain": "fa-etbx-saasfaprod1.fa.ocs.oraclecloud.com", "site": "nfcu"},
+        {"name": "american_express", "domain": "egug-dev1.fa.us2.oraclecloud.com", "site": "CX_4001"},
+        {"name": "cbiz", "subdomain": "ebez", "region": "us2", "site": "CX_1"},
+        # ── Technology & Software ─────────────────────────────────
         {"name": "oracle", "subdomain": "eeho", "region": "us2", "site": "CX_1"},
         {"name": "fortinet", "subdomain": "edel", "region": "us2", "site": "CX_2001"},
-        # Finance
-        {"name": "jpmorgan", "domain": "jpmc.fa.oraclecloud.com", "site": "CX_1001"},
-        {"name": "navy_federal", "domain": "fa-etbx-saasfaprod1.fa.ocs.oraclecloud.com", "site": "nfcu"},
-        # Automotive / Manufacturing
+        {"name": "honeywell", "domain": "ibqbjb.fa.ocs.oraclecloud.com", "site": "Honeywell"},
+        {"name": "conduent", "subdomain": "egua", "region": "us2", "site": "CX_1"},
+        # ── Automotive & Manufacturing ────────────────────────────
         {"name": "ford", "subdomain": "efds", "region": "em5", "site": "CX_1"},
+        {"name": "cummins", "domain": "fa-espx-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1"},
         {"name": "arconic", "subdomain": "hdnn", "region": "us6", "site": "CX"},
-        # Media / Tech
-        {"name": "hearst", "subdomain": "eevd", "region": "us6", "site": "CX_1"},
-        # Retail
-        {"name": "autozone", "domain": "careers.autozone.com", "site": "CX_1"},
+        # ── Retail & Consumer ─────────────────────────────────────
+        {"name": "autozone", "subdomain": "egud", "region": "us2", "site": "CX_1"},
         {"name": "albertsons", "subdomain": "eofd", "region": "us6", "site": "CX_1001"},
+        {"name": "macys", "subdomain": "ebwh", "region": "us2", "site": "CX_1001"},
+        {"name": "american_eagle", "subdomain": "hcml", "region": "us2", "site": "AEO-Careers"},
         {"name": "williams_sonoma", "subdomain": "ehac", "region": "us6", "site": "CX_1"},
-        # Energy / Utilities / Environmental
+        # ── Energy & Utilities ────────────────────────────────────
         {"name": "waste_management", "subdomain": "emcm", "region": "us2", "site": "WMCareers"},
         {"name": "southern_company", "subdomain": "emje", "region": "us6", "site": "SouthernCompanyJobs"},
-        # Hospitality
+        # ── Media ─────────────────────────────────────────────────
+        {"name": "hearst", "subdomain": "eevd", "region": "us6", "site": "CX_1"},
+        # ── Hospitality ───────────────────────────────────────────
         {"name": "marriott", "subdomain": "ejwl", "region": "us2", "site": "CX"},
-        # BPO / Services
+        {"name": "marriott_campus", "subdomain": "ejwl", "region": "us2", "site": "CX_1"},
+        {"name": "hilton_grand", "subdomain": "efuq", "region": "us6", "site": "HiltonGrandVacations"},
+        # ── BPO / Services ────────────────────────────────────────
         {"name": "alorica", "domain": "fa-euxw-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1"},
         {"name": "exp_engineering", "subdomain": "elcn", "region": "us2", "site": "CX"},
     ],
 }
+
