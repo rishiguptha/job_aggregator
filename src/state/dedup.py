@@ -6,8 +6,11 @@ from src.config.settings import settings
 def load_seen_jobs() -> set:
     path = Path(settings.SEEN_JOBS_FILE)
     if path.exists():
-        with open(path) as f:
-            return set(json.load(f))
+        try:
+            with open(path) as f:
+                return set(json.load(f))
+        except (json.JSONDecodeError, ValueError):
+            return set()
     return set()
 
 def save_seen_jobs(seen: set):
