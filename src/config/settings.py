@@ -20,7 +20,7 @@ class Settings:
     TITLE_KEYWORDS = ["data engineer", "data engineering", "software development engineer", "ai engineer"]
     TITLE_KEYWORDS_REGEX = [r'\bsde\b']  # Short abbreviations needing word-boundary matching
     BONUS_KEYWORDS = ["analytics engineer", "etl engineer", "pipeline engineer", "ml engineer", "machine learning engineer"]
-    EXCLUDE_TITLE_PATTERN = r'\b(senior|staff|manager|principal|lead|director|vp|head|president|sr|intern|internship|co-op|coop)\b'
+    EXCLUDE_TITLE_PATTERN = r'\b(senior|staff|manager|principal|lead|director|vp|head|president|sr|intern|internship|co-op|coop|ii|iii|iv|v|vi|2|3|4|5|6|mid|mid-level)\b'
     EXCLUDE_CLEARANCE_PATTERN = r'(?<!no\s)(?<!not\s)(?<!without\s)\b(top secret|ts/?sci|polygraph|security clearance|active clearance|top-secret|clearance required|us citizenship(?: required)?|u\.s\. citizen(?:ship)?)\b'
     EXCLUDE_PHD_PATTERN = r'\b(ph\.?d\.?)\b(?!\s+(?:not\s+required|optional|preferred|or\s+equivalent|or\s+master))'
     NEW_GRAD_PATTERN = r'\b(new grad(?:uate)?|recent grad(?:uate)?|university grad(?:uate)?|early career|entry level|entry-level)\b'
