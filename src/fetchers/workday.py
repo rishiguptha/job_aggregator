@@ -78,7 +78,7 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
                 if not match_type:
                     continue
 
-                location = job.get("locationsText", "Unknown")
+                location = job.get("locationsText", "") or ""
                 posted_on = job.get("postedOn", "")
 
                 # Date filtering — Workday uses relative strings like "Posted 2 Days Ago",
@@ -90,14 +90,18 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
 
                 job_url = f"{base_url}/en-US/{site}{external_path}"
 
-                # Fetch job details to get the description for accurate filtering
+                # Fetch job details to get the description and location for accurate filtering
                 detail_url = f"https://{instance}.myworkdayjobs.com/wday/cxs/{company_slug}/{site}{external_path}"
                 description = ""
                 try:
                     async with session.get(detail_url, headers=HEADERS, timeout=aiohttp.ClientTimeout(total=10)) as d_resp:
                         if d_resp.status == 200:
                             detail_data = await d_resp.json()
-                            description = detail_data.get("jobPostingInfo", {}).get("jobDescription", "")
+                            job_info = detail_data.get("jobPostingInfo", {})
+                            description = job_info.get("jobDescription", "")
+                            # Fall back to detail location when listing didn't provide one
+                            if not location.strip():
+                                location = job_info.get("location", "") or "Unknown"
                 except Exception as e:
                     log.debug(f"Workday detail fetch error ({name}): {e}")
 

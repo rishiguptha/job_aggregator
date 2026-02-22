@@ -113,8 +113,8 @@ def passes_location_filter(location: str) -> bool:
         return True
 
     if not location or location.strip().lower() in ("unknown", ""):
-        # No location info — include by default (could be remote)
-        return True
+        # No location info — reject by default (likely non-US)
+        return False
 
     loc = location.lower().strip()
 
