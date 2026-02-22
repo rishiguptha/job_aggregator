@@ -2,13 +2,14 @@ name: Job Alert Scheduler
 
 on:
   schedule:
-    # ── Weekdays (Mon-Fri): every 2 hours 8:55AM-8:55PM + 11:54PM CST ──
-    - cron: '55 14,16,18,20,22 * * 1-5' # 8:55AM, 10:55AM, 12:55PM, 2:55PM, 4:55PM CST
-    - cron: '55 0,2 * * 2-6'            # 6:55PM, 8:55PM CST (Tue-Sat UTC = Mon-Fri CST)
-    - cron: '54 5 * * 2-6'              # 11:54PM CST (Tue-Sat UTC = Mon-Fri CST)
-    # ── Weekends (Sat-Sun): just 8:55AM + 8:55PM CST ──
-    - cron: '55 14 * * 0,6'             # 8:55AM CST Sat & Sun
-    - cron: '55 2 * * 0,1'              # 8:55PM CST Sat & Sun (Sun-Mon UTC = Sat-Sun CST)
+    # ── NOTE: GitHub disables scheduled workflows if repository is inactive for 60 days ──
+    # ── Weekdays (Mon-Fri): every 2 hours 8:53AM-8:53PM + 11:53PM CST ──
+    - cron: '53 14,16,18,20,22 * * 1-5' # 8:53AM, 10:53AM, 12:53PM, 2:53PM, 4:53PM CST
+    - cron: '53 0,2 * * 2-6'            # 6:53PM, 8:53PM CST (Tue-Sat UTC = Mon-Fri CST)
+    - cron: '53 5 * * 2-6'              # 11:53PM CST (Tue-Sat UTC = Mon-Fri CST)
+    # ── Weekends (Sat-Sun): just 8:53AM + 8:53PM CST ──
+    - cron: '53 14 * * 0,6'             # 8:53AM CST Sat & Sun
+    - cron: '53 2 * * 0,1'              # 8:53PM CST Sat & Sun (Sun-Mon UTC = Sat-Sun CST)
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
 jobs:
