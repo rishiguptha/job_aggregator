@@ -1298,8 +1298,28 @@ COMPANY_SLUGS = {
     # Example: Oracle's career page -> subdomain=eeho, region=us2, site=CX_1
     # For companies with custom domains (e.g., careers.autozone.com), use "domain" instead of subdomain+region
     "oraclecloud": [
+        # Tech / Software
         {"name": "oracle", "subdomain": "eeho", "region": "us2", "site": "CX_1"},
+        {"name": "fortinet", "subdomain": "edel", "region": "us2", "site": "CX_2001"},
+        # Finance
+        {"name": "jpmorgan", "domain": "jpmc.fa.oraclecloud.com", "site": "CX_1001"},
+        {"name": "navy_federal", "domain": "fa-etbx-saasfaprod1.fa.ocs.oraclecloud.com", "site": "nfcu"},
+        # Automotive / Manufacturing
         {"name": "ford", "subdomain": "efds", "region": "em5", "site": "CX_1"},
+        {"name": "arconic", "subdomain": "hdnn", "region": "us6", "site": "CX"},
+        # Media / Tech
+        {"name": "hearst", "subdomain": "eevd", "region": "us6", "site": "CX_1"},
+        # Retail
         {"name": "autozone", "domain": "careers.autozone.com", "site": "CX_1"},
+        {"name": "albertsons", "subdomain": "eofd", "region": "us6", "site": "CX_1001"},
+        {"name": "williams_sonoma", "subdomain": "ehac", "region": "us6", "site": "CX_1"},
+        # Energy / Utilities / Environmental
+        {"name": "waste_management", "subdomain": "emcm", "region": "us2", "site": "WMCareers"},
+        {"name": "southern_company", "subdomain": "emje", "region": "us6", "site": "SouthernCompanyJobs"},
+        # Hospitality
+        {"name": "marriott", "subdomain": "ejwl", "region": "us2", "site": "CX"},
+        # BPO / Services
+        {"name": "alorica", "domain": "fa-euxw-saasfaprod1.fa.ocs.oraclecloud.com", "site": "CX_1"},
+        {"name": "exp_engineering", "subdomain": "elcn", "region": "us2", "site": "CX"},
     ],
 }
