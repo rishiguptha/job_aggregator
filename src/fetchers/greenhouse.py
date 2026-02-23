@@ -50,7 +50,7 @@ async def fetch_greenhouse(company: str, session: aiohttp.ClientSession) -> list
                 "title": title,
                 "company": company,
                 "platform": "greenhouse",
-                "url": job.get("absolute_url", f"https://boards.greenhouse.io/{company}/jobs/{job.get('id','')}"),
+                "url": f"https://boards.greenhouse.io/{company}/jobs/{job.get('id', '')}",
                 "location": job.get("location", {}).get("name", "Unknown"),
                 "description": clean_content[:500],
                 "experience": max_exp,
