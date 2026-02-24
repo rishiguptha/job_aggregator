@@ -6,7 +6,7 @@ from src.filters.title import matches_title
 from src.filters.experience import passes_experience_filter
 from src.filters.clearance import passes_clearance_filter
 from src.filters.phd import passes_phd_filter
-from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
+from src.filters.date import is_posted_today, is_posted_current_year
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -100,7 +100,7 @@ async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession
                 posted_at = job.get("PostedDate", "")
 
                 # Date filtering
-                if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "oraclecloud") or is_posted_yesterday(posted_at, "oraclecloud")):
+                if settings.FETCH_ONLY_TODAY and not is_posted_today(posted_at, "oraclecloud"):
                     continue
                 if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "oraclecloud"):
                     continue

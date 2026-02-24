@@ -52,8 +52,8 @@ async def fetch_ashby(company: str, session: aiohttp.ClientSession) -> list[dict
             posted_at = job.get("publishedAt", "")
             
             from src.config.settings import settings
-            from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
-            if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "ashby") or is_posted_yesterday(posted_at, "ashby")):
+            from src.filters.date import is_posted_today, is_posted_current_year
+            if settings.FETCH_ONLY_TODAY and not is_posted_today(posted_at, "ashby"):
                 continue
             if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "ashby"):
                 continue
