@@ -1234,7 +1234,7 @@ COMPANY_SLUGS = {
         "privy", "procurementsciences", "procurify", "profound", "projectgrowth",
         "prokeep", "promise", "proofofplay", "prophet-security", "prorata",
         "provable", "proxima-fusion", "pylon", "pylon-labs", "qawolf",
-        "qdrant", "qualified", "quantware", "quicknode", "qwilr",
+        "qdrant", "qualified", "quantware", "quora", "quicknode", "qwilr",
         "radai", "radar", "raiku", "railway", "rain",
         "rainforest-pay", "ramp", "ray", "readme", "realfast",
         "realitydefender", "rebuy", "recraft", "red6", "reedsy",
