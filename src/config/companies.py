@@ -1302,6 +1302,7 @@ COMPANY_SLUGS = {
         {"name": "jpmorgan", "domain": "jpmc.fa.oraclecloud.com", "site": "CX_1001"},
         {"name": "goldman_sachs", "subdomain": "hdpc", "region": "us2", "site": "CX_1"},
         {"name": "goldman_sachs_campus", "subdomain": "hdpc", "region": "us2", "site": "CampusHiring"},
+        {"name": "goldman_sachs_lateral", "subdomain": "hdpc", "region": "us2", "site": "LateralHiring"},
         {"name": "bny_mellon", "subdomain": "eofe", "region": "us2", "site": "CX_1001"},
         {"name": "dtcc", "subdomain": "ebxr", "region": "us2", "site": "CX_1"},
         {"name": "cantor_fitzgerald", "subdomain": "hdow", "region": "us6", "site": "CX_1003"},
@@ -1343,6 +1344,9 @@ COMPANY_SLUGS = {
     # site = career site path (found in the URL: myworkdayjobs.com/en-US/{site}/...)
     # To find these, visit {company}.wd{N}.myworkdayjobs.com and look at the URL path.
     "workday": [
+        # ── Banking & Finance ─────────────────────────────────────
+        {"name": "m&t_bank", "instance": "mtb.wd5", "site": "MTB"},
+
         # ── Big Tech & Software ───────────────────────────────
         {"name": "netflix", "instance": "netflix.wd1", "site": "Netflix"},
         {"name": "nvidia", "instance": "nvidia.wd5", "site": "NVIDIAExternalCareerSite"},
