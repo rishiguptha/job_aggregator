@@ -41,7 +41,7 @@ def send_email(jobs: list[dict]):
         border_color = "#1a73e8" if job["match_type"] == "primary" else "#f59e0b"
 
         is_sponsor = _normalize_company(job['company']) in H1B_SPONSORS
-        sponsor_html = f'<span style="font-size:12px; padding:2px 8px; border-radius:12px; background:#e8f5e9; color:#2e7d32; margin-left:8px;">🛂 H1B Sponsor</span>' if is_sponsor else f''<span style="font-size:12px; padding:2px 8px; border-radius:12px; background:#e8f5e9; color:#2e7d32; margin-left:8px;">Not Sponsored/NOT Sure</span>'
+        sponsor_html = f'<span style="font-size:12px; padding:2px 8px; border-radius:12px; background:#e8f5e9; color:#2e7d32; margin-left:8px;">🛂 H1B Sponsor</span>' if is_sponsor else f'<span style="font-size:12px; padding:2px 8px; border-radius:12px; background:#ffebee; color:#c62828; margin-left:8px;">Not Sponsored/NOT Sure</span>'
 
         html.append(f"""
         <div style="margin-bottom:16px; padding:14px; border-left:4px solid {border_color};
