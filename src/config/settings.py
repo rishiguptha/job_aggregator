@@ -16,6 +16,10 @@ class Settings:
     SENDER_PASSWORD = os.getenv("JOB_ALERT_SENDER_PASSWORD", "")
     _recipients_str = os.getenv("JOB_ALERT_RECIPIENT_EMAIL", "")
     RECIPIENT_EMAILS = [email.strip() for email in _recipients_str.split(",") if email.strip()]
+
+    # Email Backend: "smtp" (default, works locally/GitHub Actions) or "resend" (works on DO)
+    EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "smtp")
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
     # Job Keywords
     TITLE_KEYWORDS = ["data engineer", "data engineering", "software development engineer", "software engineer", "software developer", "ai engineer"]
     TITLE_KEYWORDS_REGEX = [r'\bsde\b']  # Short abbreviations needing word-boundary matching

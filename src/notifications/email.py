@@ -3,6 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import re
+import requests
 from src.config.settings import settings
 from src.config.companies import COMPANY_SLUGS
 from src.config.constants import PLATFORM_ICONS
@@ -77,18 +78,56 @@ def send_email(jobs: list[dict]):
     </body></html>
     """)
 
+    subject = f"🔔 {len(jobs)} New Jobs (JOB-AGGREGATOR) — {datetime.now().strftime('%b %d, %I:%M %p')}"
+    html_body = "\n".join(html)
+
+    if settings.EMAIL_BACKEND == "resend":
+        _send_via_resend(subject, html_body, primary, bonus)
+    else:
+        _send_via_smtp(subject, html_body, primary, bonus)
+
+
+def _send_via_smtp(subject: str, html_body: str, primary: list, bonus: list):
+    """Send email via Gmail SMTP (port 465). Works locally and on GitHub Actions."""
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"🔔 {len(jobs)} New Data Engineer Jobs — {datetime.now().strftime('%b %d, %I:%M %p')}"
+    msg["Subject"] = subject
     msg["From"] = settings.SENDER_EMAIL
     msg["To"] = ", ".join(settings.RECIPIENT_EMAILS)
-    msg.attach(MIMEText("\n".join(html), "html"))
+    msg.attach(MIMEText(html_body, "html"))
 
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(settings.SENDER_EMAIL, settings.SENDER_PASSWORD)
             server.sendmail(settings.SENDER_EMAIL, settings.RECIPIENT_EMAILS, msg.as_string())
-        log.info(f"✅ Email sent: {len(primary)} primary + {len(bonus)} bonus matches")
+        log.info(f"✅ Email sent (SMTP): {len(primary)} primary + {len(bonus)} bonus matches")
     except Exception as e:
         import traceback
-        log.error(f"❌ Email failed: {e}")
+        log.error(f"❌ Email failed (SMTP): {e}")
+        log.error(traceback.format_exc())
+
+
+def _send_via_resend(subject: str, html_body: str, primary: list, bonus: list):
+    """Send email via Resend REST API (port 443). Works on DigitalOcean."""
+    try:
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": settings.SENDER_EMAIL,
+                "to": settings.RECIPIENT_EMAILS,
+                "subject": subject,
+                "html": html_body,
+            },
+            timeout=15,
+        )
+        if resp.status_code in (200, 201):
+            log.info(f"✅ Email sent (Resend): {len(primary)} primary + {len(bonus)} bonus matches")
+        else:
+            log.error(f"❌ Email failed (Resend): {resp.status_code} — {resp.text}")
+    except Exception as e:
+        import traceback
+        log.error(f"❌ Email failed (Resend): {e}")
         log.error(traceback.format_exc())
