@@ -33,7 +33,7 @@ async def fetch_greenhouse(company: str, session: aiohttp.ClientSession) -> list
             content = job.get("content", "")
             content = html.unescape(content)
             clean_content = re.sub(r'<[^>]+>', ' ', content).lower()
-            passes, max_exp = passes_experience_filter(clean_content)
+            passes, min_exp, exp_level = passes_experience_filter(clean_content)
             passes_clearance = passes_clearance_filter(clean_content)
             passes_phd = passes_phd_filter(clean_content)
 
@@ -53,8 +53,9 @@ async def fetch_greenhouse(company: str, session: aiohttp.ClientSession) -> list
                 "url": f"https://boards.greenhouse.io/{company}/jobs/{job.get('id', '')}",
                 "location": job.get("location", {}).get("name", "Unknown"),
                 "description": clean_content[:500],
-                "experience": max_exp,
+                "experience": min_exp,
                 "passes_filter": passes,
+                "exp_level": exp_level,
                 "passes_clearance": passes_clearance,
                 "passes_phd": passes_phd,
                 "match_type": match_type,

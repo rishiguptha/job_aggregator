@@ -45,7 +45,7 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
                 except Exception:
                     pass
 
-            passes, max_exp = passes_experience_filter(description)
+            passes, min_exp, exp_level = passes_experience_filter(description)
             passes_clearance = passes_clearance_filter(description)
             passes_phd = passes_phd_filter(description)
             location = job.get("city", "") or job.get("country", "Unknown")
@@ -66,8 +66,9 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
                 "url": job.get("url", f"https://apply.workable.com/{company}/j/{shortcode}/"),
                 "location": location,
                 "description": description[:500],
-                "experience": max_exp,
+                "experience": min_exp,
                 "passes_filter": passes,
+                "exp_level": exp_level,
                 "passes_clearance": passes_clearance,
                 "passes_phd": passes_phd,
                 "match_type": match_type,

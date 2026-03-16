@@ -56,7 +56,7 @@ async def run_pipeline():
         else:
             filtered_exp += 1
             log.info(f"  🚫 Filtered (Exp): {job['title']} @ {job['company']} "
-                     f"(requires {job['experience']}+ yrs)")
+                     f"({job.get('exp_level', '?')} — requires {job['experience']}+ yrs)")
 
     log.info(f"Passed: {len(new_jobs)} | Exp: {filtered_exp} | Loc: {filtered_loc} | Clearance: {filtered_clearance} | PhD: {filtered_phd}")
     new_jobs.sort(key=lambda j: (0 if j["match_type"] == "primary" else 1, j["company"]))
@@ -105,9 +105,10 @@ if __name__ == "__main__":
         for j in passed:
             icon = PLATFORM_ICONS.get(j["platform"], "")
             exp = f"{j['experience']} yrs" if j["experience"] else "n/a"
+            exp_level = j.get("exp_level", "❓")
             posted = f" | Posted: {j['posted_at'][:10]}" if j.get("posted_at") else ""
             print(f"  {icon} [{j['platform']}/{j['company']}] {j['title']}")
-            print(f"     📍 {j['location']} | Exp: {exp}{posted}")
+            print(f"     📍 {j['location']} | Exp: {exp} | {exp_level}{posted}")
             print(f"     🔗 {j['url']}\n")
 
     elif args.once:

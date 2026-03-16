@@ -37,7 +37,7 @@ async def fetch_ashby(company: str, session: aiohttp.ClientSession) -> list[dict
             description_content = desc_html if desc_html else desc_plain
             description = html.unescape(description_content)
             clean_desc = re.sub(r'<[^>]+>', ' ', description).lower()
-            passes, max_exp = passes_experience_filter(clean_desc)
+            passes, min_exp, exp_level = passes_experience_filter(clean_desc)
             passes_clearance = passes_clearance_filter(clean_desc)
             passes_phd = passes_phd_filter(clean_desc)
 
@@ -65,8 +65,9 @@ async def fetch_ashby(company: str, session: aiohttp.ClientSession) -> list[dict
                 "url": job.get("jobUrl", f"https://jobs.ashbyhq.com/{company}/{job.get('id','')}"),
                 "location": location,
                 "description": clean_desc[:500],
-                "experience": max_exp,
+                "experience": min_exp,
                 "passes_filter": passes,
+                "exp_level": exp_level,
                 "passes_clearance": passes_clearance,
                 "passes_phd": passes_phd,
                 "match_type": match_type,

@@ -106,7 +106,7 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
                     log.debug(f"Workday detail fetch error ({name}): {e}")
 
                 clean_text = re.sub(r'<[^>]+>', ' ', html.unescape(description)).lower() if description else ""
-                passes_exp, max_exp = passes_experience_filter(clean_text) if clean_text else (True, None)
+                passes_exp, min_exp, exp_level = passes_experience_filter(clean_text) if clean_text else (True, None, "❓ Not Specified")
                 passes_cl = passes_clearance_filter(clean_text) if clean_text else True
                 passes_p = passes_phd_filter(clean_text) if clean_text else True
 
@@ -117,8 +117,9 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
                     "url": job_url,
                     "location": location,
                     "description": clean_text[:500],
-                    "experience": max_exp,
+                    "experience": min_exp,
                     "passes_filter": passes_exp,
+                    "exp_level": exp_level,
                     "passes_clearance": passes_cl,
                     "passes_phd": passes_p,
                     "match_type": match_type,

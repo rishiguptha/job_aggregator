@@ -37,7 +37,16 @@ def send_email(jobs: list[dict]):
 
     for i, job in enumerate(primary + bonus, 1):
         icon = PLATFORM_ICONS.get(job["platform"], "📋")
-        exp_text = f"{job['experience']} yrs" if job["experience"] else "Not specified (likely entry-level)"
+        exp_text = f"{job['experience']} yrs" if job["experience"] else "Not specified"
+        exp_level = job.get("exp_level", "❓ Not Specified")
+        exp_level_colors = {
+            "🎓 New Grad": ("#e8f5e9", "#2e7d32"),
+            "📗 0-1 YoE": ("#e8f5e9", "#2e7d32"),
+            "📘 1-2 YoE": ("#e3f2fd", "#1565c0"),
+            "🔶 3+ YoE": ("#fff3e0", "#e65100"),
+            "❓ Not Specified": ("#f5f5f5", "#616161"),
+        }
+        exp_bg, exp_fg = exp_level_colors.get(exp_level, ("#f5f5f5", "#616161"))
         badge = "🎯 Primary" if job["match_type"] == "primary" else "💡 Bonus"
         border_color = "#1a73e8" if job["match_type"] == "primary" else "#f59e0b"
 
@@ -57,7 +66,7 @@ def send_email(jobs: list[dict]):
             <p style="color:#555; margin:4px 0; font-size:14px;">
                 {icon} {job['platform'].title()} · <b>{job['company']}</b> · 📍 {job['location']}
             </p>
-            <p style="color:#777; margin:4px 0; font-size:13px;">📋 Experience: {exp_text}</p>
+            <p style="color:#777; margin:4px 0; font-size:13px;">📋 Experience: {exp_text} <span style="font-size:11px; padding:2px 6px; border-radius:10px; background:{exp_bg}; color:{exp_fg}; margin-left:6px;">{exp_level}</span></p>
             {'<p style="color:#777; margin:4px 0; font-size:13px;">📅 Posted: ' + job['posted_at'][:10] + '</p>' if job.get('posted_at') else ''}
             <a href="{job['url']}" style="color:#1a73e8; font-weight:bold; font-size:14px;">
                 👉 Apply Here

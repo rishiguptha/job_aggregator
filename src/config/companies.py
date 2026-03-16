@@ -154,6 +154,26 @@ COMPANY_SLUGS = {
         "yugabyte",
         "zapier",
         "zilliz",
+        # ── Discovered 2026-03-16 ──────────────────────────────────
+        "appian",              # Appian — low-code automation platform
+        "appliedintuition",    # Applied Intuition — AI autonomous vehicles
+        "axon",                # Axon — AI public safety tech
+        "c3iot",               # C3.ai — enterprise AI  (slug: c3iot, not c3ai)
+        "canonical",           # Canonical — Linux/Ubuntu/cloud infrastructure
+        "cloudflare",          # Cloudflare — network security & infrastructure
+        "figureai",            # Figure AI — AI humanoid robotics
+        "fireworksai",         # Fireworks AI — LLM inference platform
+        "flexport",            # Flexport — logistics & supply chain tech
+        "gleanwork",           # Glean — AI enterprise search  (slug: gleanwork)
+        "humeai",              # Hume AI — emotional AI / voice
+        "imc",                 # IMC Trading — quant trading (strong SWE pipeline)
+        "janestreet",          # Jane Street — quant trading (SWE/DE roles)
+        "lucidmotors",         # Lucid Motors — EV tech, strong software division
+        "robinhood",           # Robinhood Markets — fintech / retail investing
+        "twitch",              # Twitch (Amazon) — streaming / gaming infrastructure
+        "verkada",             # Verkada — physical security cloud platform
+        "warp",                # Warp — AI-native terminal (dev tools)
+        "wehrtyou",            # Hudson River Trading — quant trading  (slug: wehrtyou)
     ],
 
     "lever": [
@@ -264,6 +284,9 @@ COMPANY_SLUGS = {
         "zapier",
         "zilliz",
         "zimperium",
+        # ── Discovered 2026-03-16 ──────────────────────────────────
+        "atlassian",           # Atlassian — developer tools (Jira, Confluence)
+        "canva",               # Canva — design platform (H1B: canvaus)
     ],
 
     "ashby": [
@@ -613,6 +636,17 @@ COMPANY_SLUGS = {
         "zauber",
         "zed",
         "zip",
+        # ── Discovered 2026-03-16 ──────────────────────────────────
+        "allium",              # Allium — blockchain data analytics
+        "continue",            # Continue.dev — OSS AI code assistant
+        "eventualcomputing",   # Eventual Computing — distributed systems / Rust
+        "genmo",               # Genmo — AI video generation
+        "gigaml",              # Giga AI — AI training infrastructure
+        "n1",                  # N1 — AI data platform
+        "persona",             # Persona — identity verification / fraud (Series C)
+        "sentilink",           # SentiLink — synthetic fraud detection / fintech
+        "sentra",              # Sentra — cloud data security
+        "uncountable",         # Uncountable — AI R&D platform (chemistry / materials)
     ],
 
     "workable": [
@@ -670,5 +704,20 @@ COMPANY_SLUGS = {
         {"name": "bms", "instance": "bristolmyerssquibb.wd5", "site": "BMS"},
         {"name": "danaher", "instance": "danaher.wd1", "site": "DanaherJobs"},
         {"name": "travelers", "instance": "travelers.wd5", "site": "External"},
+        # ── Discovered 2026-03-16 ──────────────────────────────────
+        {"name": "cisco",        "instance": "cisco.wd5",         "site": "Cisco_Careers"},
+        {"name": "ebay",         "instance": "ebay.wd5",          "site": "apply"},
+        {"name": "expedia",      "instance": "expedia.wd108",     "site": "search"},
+        {"name": "factset",      "instance": "factset.wd108",     "site": "FactSetCareers"},
+        {"name": "micron",       "instance": "micron.wd1",        "site": "External"},
+        {"name": "morningstar",  "instance": "morningstar.wd5",   "site": "Americas"},
+        {"name": "qualcomm",     "instance": "qualcomm.wd12",     "site": "External"},
+        {"name": "redhat",       "instance": "redhat.wd5",        "site": "Jobs"},
+        {"name": "servicetitan", "instance": "servicetitan.wd1",  "site": "ServiceTitan"},
+        {"name": "spglobal",     "instance": "spgi.wd5",          "site": "SPGI_Careers"},
+        {"name": "zoom",         "instance": "zoom.wd5",          "site": "Zoom"},
+        # ── Discovered 2026-03-16 (follow-up verification) ────────
+        {"name": "blackrock",    "instance": "blackrock.wd1",     "site": "BlackRock_Professional"},
+        {"name": "etsy",         "instance": "etsy.wd5",          "site": "Etsy_Careers"},
     ],
 }

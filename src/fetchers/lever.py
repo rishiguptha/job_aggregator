@@ -39,7 +39,7 @@ async def fetch_lever(company: str, session: aiohttp.ClientSession) -> list[dict
             full_text = f"{desc} {additional}".lower()
             content = html.unescape(full_text)
             clean_text = re.sub(r'<[^>]+>', ' ', content).lower()
-            passes, max_exp = passes_experience_filter(clean_text)
+            passes, min_exp, exp_level = passes_experience_filter(clean_text)
             passes_clearance = passes_clearance_filter(clean_text)
             passes_phd = passes_phd_filter(clean_text)
 
@@ -69,8 +69,9 @@ async def fetch_lever(company: str, session: aiohttp.ClientSession) -> list[dict
                 "url": job.get("hostedUrl", f"https://jobs.lever.co/{company}/{job.get('id','')}"),
                 "location": location,
                 "description": clean_text[:500],
-                "experience": max_exp,
+                "experience": min_exp,
                 "passes_filter": passes,
+                "exp_level": exp_level,
                 "passes_clearance": passes_clearance,
                 "passes_phd": passes_phd,
                 "match_type": match_type,
