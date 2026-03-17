@@ -26,69 +26,108 @@ def send_email(jobs: list[dict]):
 
     primary = [j for j in jobs if j["match_type"] == "primary"]
     bonus = [j for j in jobs if j["match_type"] == "bonus"]
+    now_str = datetime.now().strftime("%b %d, %Y at %I:%M %p")
+    platforms_hit = sorted(set(j["platform"] for j in jobs))
+    total_companies = sum(len(v) for v in COMPANY_SLUGS.values())
 
-    html = [
-        "<html><body>",
-        f"<h2>🚀 {len(jobs)} New Job(s) Found</h2>",
-        f"<p style='color:#666;'>Filtered ≤ {settings.MAX_EXPERIENCE_YEARS} yrs exp | {datetime.now().strftime('%Y-%m-%d %H:%M')} | "
-        f"{len(primary)} primary + {len(bonus)} bonus matches</p>",
-        "<hr>",
-    ]
+    EXP_BADGE = {
+        "🎓 New Grad": "background:#dcfce7;color:#166534",
+        "📗 0-1 YoE": "background:#dcfce7;color:#166534",
+        "📘 1-2 YoE": "background:#dbeafe;color:#1e40af",
+        "🔶 3+ YoE": "background:#fef3c7;color:#92400e",
+        "❓ Not Specified": "background:#f3f4f6;color:#6b7280",
+    }
 
-    for i, job in enumerate(primary + bonus, 1):
-        icon = PLATFORM_ICONS.get(job["platform"], "📋")
+    def _card(idx, job, accent):
+        icon = PLATFORM_ICONS.get(job["platform"], "")
         exp_text = f"{job['experience']} yrs" if job["experience"] else "Not specified"
-        exp_level = job.get("exp_level", "❓ Not Specified")
-        exp_level_colors = {
-            "🎓 New Grad": ("#e8f5e9", "#2e7d32"),
-            "📗 0-1 YoE": ("#e8f5e9", "#2e7d32"),
-            "📘 1-2 YoE": ("#e3f2fd", "#1565c0"),
-            "🔶 3+ YoE": ("#fff3e0", "#e65100"),
-            "❓ Not Specified": ("#f5f5f5", "#616161"),
-        }
-        exp_bg, exp_fg = exp_level_colors.get(exp_level, ("#f5f5f5", "#616161"))
-        badge = "🎯 Primary" if job["match_type"] == "primary" else "💡 Bonus"
-        border_color = "#1a73e8" if job["match_type"] == "primary" else "#f59e0b"
+        exp_level = job.get("exp_level", "")
+        s = EXP_BADGE.get(exp_level, "background:#f3f4f6;color:#6b7280")
+        exp_pill = (
+            f' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
+            f'border-radius:10px;{s}">{exp_level}</span>'
+        ) if exp_level else ""
+        sponsor = _normalize_company(job["company"]) in H1B_SPONSORS
+        h1b_pill = (
+            ' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
+            'border-radius:10px;background:#dcfce7;color:#166534">H1B Sponsor</span>'
+        ) if sponsor else ""
+        posted = (
+            f'<p style="margin:0;font-size:11px;color:#b0b0b0">'
+            f'Posted {job["posted_at"][:10]}</p>'
+        ) if job.get("posted_at") else ""
 
-        is_sponsor = _normalize_company(job['company']) in H1B_SPONSORS
-        sponsor_html = f'<span style="font-size:12px; padding:2px 8px; border-radius:12px; background:#e8f5e9; color:#2e7d32; margin-left:8px;">🛂 H1B Sponsor</span>' if is_sponsor else f'<span style="font-size:12px; padding:2px 8px; border-radius:12px; background:#ffebee; color:#c62828; margin-left:8px;">Not Sponsored/NOT Sure</span>'
+        return (
+            f'<tr><td style="padding:0 32px 12px">'
+            f'<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
+            f'<td style="border:1px solid #e5e7eb;border-left:3px solid {accent};'
+            f'border-radius:6px;padding:16px 20px">'
+            f'<p style="margin:0 0 6px;font-size:15px;font-weight:600;color:#111827">'
+            f'#{idx} &mdash; {job["title"]}</p>'
+            f'<p style="margin:0 0 6px;font-size:13px;color:#6b7280">'
+            f'{icon} {job["platform"].title()} &middot; '
+            f'<span style="color:#374151;font-weight:600">{job["company"]}</span>'
+            f' &middot; {job["location"]}</p>'
+            f'<p style="margin:0 0 4px;font-size:12px;color:#9ca3af">'
+            f'Exp: {exp_text}{exp_pill}{h1b_pill}</p>'
+            f'{posted}'
+            f'<p style="margin:10px 0 0">'
+            f'<a href="{job["url"]}" style="display:inline-block;background:{accent};'
+            f'color:#fff;padding:8px 24px;border-radius:6px;text-decoration:none;'
+            f'font-size:13px;font-weight:600">Apply Now &rarr;</a></p>'
+            f'</td></tr></table></td></tr>'
+        )
 
-        html.append(f"""
-        <div style="margin-bottom:16px; padding:14px; border-left:4px solid {border_color};
-                    background:#fafafa; border-radius:4px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; font-size:16px;">#{i} — {job['title']}</h3>
-                <div>
-                    <span style="font-size:12px; padding:2px 8px; border-radius:12px;
-                           background:{'#e3f2fd' if job['match_type'] == 'primary' else '#fff8e1'};">{badge}</span>{sponsor_html}
-                </div>
-            </div>
-            <p style="color:#555; margin:4px 0; font-size:14px;">
-                {icon} {job['platform'].title()} · <b>{job['company']}</b> · 📍 {job['location']}
-            </p>
-            <p style="color:#777; margin:4px 0; font-size:13px;">📋 Experience: {exp_text} <span style="font-size:11px; padding:2px 6px; border-radius:10px; background:{exp_bg}; color:{exp_fg}; margin-left:6px;">{exp_level}</span></p>
-            {'<p style="color:#777; margin:4px 0; font-size:13px;">📅 Posted: ' + job['posted_at'][:10] + '</p>' if job.get('posted_at') else ''}
-            <a href="{job['url']}" style="color:#1a73e8; font-weight:bold; font-size:14px;">
-                👉 Apply Here
-            </a>
-        </div>
-        """)
+    parts = []
 
-    # Stats footer
-    platforms_hit = set(j["platform"] for j in jobs)
-    html.append(f"""
-    <hr>
-    <p style="color:#999; font-size:12px;">
-        Scanned {sum(len(v) for v in COMPANY_SLUGS.values())} companies across
-        {', '.join(platforms_hit)} |
-        {len(primary)} primary + {len(bonus)} bonus matches |
-        Generated by Job Alert v2
-    </p>
-    </body></html>
-    """)
+    parts.append(
+        f'<html><head><meta charset="utf-8"></head>'
+        f'<body style="margin:0;padding:0;background:#f3f4f6;'
+        f"font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+        f'<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3f4f6">'
+        f'<tr><td align="center" style="padding:32px 16px">'
+        f'<table width="600" cellpadding="0" cellspacing="0" border="0" '
+        f'style="background:#fff;border-radius:8px;overflow:hidden">'
+        f'<tr><td style="background:#111827;padding:32px 40px;text-align:center">'
+        f'<p style="margin:0;font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.5px">'
+        f'{len(jobs)} New Opportunities</p>'
+        f'<p style="margin:10px 0 0;font-size:13px;color:#6b7280">'
+        f'{now_str} &middot; &le;{settings.MAX_EXPERIENCE_YEARS} yrs exp &middot; '
+        f'{len(primary)} primary + {len(bonus)} bonus</p>'
+        f'</td></tr>'
+    )
+
+    if primary:
+        parts.append(
+            '<tr><td style="padding:28px 32px 14px">'
+            '<p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;'
+            'letter-spacing:1.5px;color:#2563eb">Top Matches</p></td></tr>'
+        )
+        for i, job in enumerate(primary, 1):
+            parts.append(_card(i, job, "#2563eb"))
+
+    if bonus:
+        parts.append(
+            '<tr><td style="padding:20px 32px 14px">'
+            '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
+            '<td style="border-top:1px solid #e5e7eb;padding-top:20px">'
+            '<p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;'
+            'letter-spacing:1.5px;color:#d97706">More Opportunities</p>'
+            '</td></tr></table></td></tr>'
+        )
+        for i, job in enumerate(bonus, len(primary) + 1):
+            parts.append(_card(i, job, "#d97706"))
+
+    parts.append(
+        f'<tr><td style="padding:24px 32px;border-top:1px solid #e5e7eb;text-align:center">'
+        f'<p style="margin:0;font-size:11px;color:#9ca3af">'
+        f'Scanned {total_companies} companies across {", ".join(platforms_hit)}</p>'
+        f'<p style="margin:4px 0 0;font-size:10px;color:#d1d5db">Job Aggregator v2</p>'
+        f'</td></tr></table></td></tr></table></body></html>'
+    )
 
     subject = f"🔔 {len(jobs)} New Jobs (JOB-AGGREGATOR) — {datetime.now().strftime('%b %d, %I:%M %p')}"
-    html_body = "\n".join(html)
+    html_body = "\n".join(parts)
 
     if settings.EMAIL_BACKEND == "resend":
         _send_via_resend(subject, html_body, primary, bonus)
