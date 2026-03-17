@@ -60,7 +60,7 @@ def send_email(jobs: list[dict]):
         ) if job.get("posted_at") else ""
 
         return (
-            f'<tr><td style="padding:0 32px 12px">'
+            f'<tr><td style="padding:0 24px 12px">'
             f'<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
             f'<td style="border:1px solid #e5e7eb;border-left:3px solid {accent};'
             f'border-radius:6px;padding:16px 20px">'
@@ -73,10 +73,10 @@ def send_email(jobs: list[dict]):
             f'<p style="margin:0 0 4px;font-size:12px;color:#9ca3af">'
             f'Exp: {exp_text}{exp_pill}{h1b_pill}</p>'
             f'{posted}'
-            f'<p style="margin:10px 0 0">'
-            f'<a href="{job["url"]}" style="display:inline-block;background:{accent};'
-            f'color:#fff;padding:8px 24px;border-radius:6px;text-decoration:none;'
-            f'font-size:13px;font-weight:600">Apply Now &rarr;</a></p>'
+            f'<p style="margin:12px 0 0">'
+            f'<a href="{job["url"]}" style="display:block;text-align:center;'
+            f'background:{accent};color:#fff;padding:10px 0;border-radius:6px;'
+            f'text-decoration:none;font-size:13px;font-weight:600">Apply Now &rarr;</a></p>'
             f'</td></tr></table></td></tr>'
         )
 
@@ -104,7 +104,7 @@ def send_email(jobs: list[dict]):
 
     if primary:
         parts.append(
-            '<tr><td style="padding:28px 32px 14px">'
+            '<tr><td style="padding:28px 24px 14px">'
             '<p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;'
             'letter-spacing:1.5px;color:#2563eb">&#x1F3AF; Top Matches</p></td></tr>'
         )
@@ -113,7 +113,7 @@ def send_email(jobs: list[dict]):
 
     if bonus:
         parts.append(
-            '<tr><td style="padding:20px 32px 14px">'
+            '<tr><td style="padding:20px 24px 14px">'
             '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
             '<td style="border-top:1px solid #e5e7eb;padding-top:20px">'
             '<p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;'
@@ -124,7 +124,7 @@ def send_email(jobs: list[dict]):
             parts.append(_card(i, job, "#d97706"))
 
     parts.append(
-        f'<tr><td style="padding:24px 32px;border-top:1px solid #e5e7eb;text-align:center">'
+        f'<tr><td style="padding:24px 24px;border-top:1px solid #e5e7eb;text-align:center">'
         f'<p style="margin:0;font-size:11px;color:#9ca3af">'
         f'Scanned {total_companies} companies across {", ".join(platforms_hit)}</p>'
         f'<p style="margin:4px 0 0;font-size:10px;color:#d1d5db">Job Aggregator v2</p>'
