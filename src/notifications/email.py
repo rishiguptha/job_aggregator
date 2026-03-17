@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import re
 import requests
 from src.config.settings import settings
@@ -26,7 +27,8 @@ def send_email(jobs: list[dict]):
 
     primary = [j for j in jobs if j["match_type"] == "primary"]
     bonus = [j for j in jobs if j["match_type"] == "bonus"]
-    now_str = datetime.now().strftime("%b %d, %Y at %I:%M %p")
+    now_ct = datetime.now(ZoneInfo("America/Chicago"))
+    now_str = now_ct.strftime("%b %d, %Y at %I:%M %p") + " CT"
     platforms_hit = sorted(set(j["platform"] for j in jobs))
     total_companies = sum(len(v) for v in COMPANY_SLUGS.values())
 
@@ -88,10 +90,13 @@ def send_email(jobs: list[dict]):
         f'<tr><td align="center" style="padding:32px 16px">'
         f'<table width="600" cellpadding="0" cellspacing="0" border="0" '
         f'style="background:#fff;border-radius:8px;overflow:hidden">'
-        f'<tr><td style="background:#111827;padding:32px 40px;text-align:center">'
+        f'<tr><td style="background:linear-gradient(135deg,#111827 0%,#1e293b 100%);'
+        f'padding:36px 40px;text-align:center">'
         f'<p style="margin:0;font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.5px">'
-        f'{len(jobs)} New Opportunities</p>'
-        f'<p style="margin:10px 0 0;font-size:13px;color:#6b7280">'
+        f'&#x1F680; {len(jobs)} New Opportunities</p>'
+        f'<p style="margin:8px 0 0;font-size:14px;color:#94a3b8;font-style:italic">'
+        f'Fresh roles just dropped &mdash; be one of the first to apply.</p>'
+        f'<p style="margin:12px 0 0;font-size:12px;color:#64748b">'
         f'{now_str} &middot; &le;{settings.MAX_EXPERIENCE_YEARS} yrs exp &middot; '
         f'{len(primary)} primary + {len(bonus)} bonus</p>'
         f'</td></tr>'
@@ -101,7 +106,7 @@ def send_email(jobs: list[dict]):
         parts.append(
             '<tr><td style="padding:28px 32px 14px">'
             '<p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;'
-            'letter-spacing:1.5px;color:#2563eb">Top Matches</p></td></tr>'
+            'letter-spacing:1.5px;color:#2563eb">&#x1F3AF; Top Matches</p></td></tr>'
         )
         for i, job in enumerate(primary, 1):
             parts.append(_card(i, job, "#2563eb"))
@@ -112,7 +117,7 @@ def send_email(jobs: list[dict]):
             '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
             '<td style="border-top:1px solid #e5e7eb;padding-top:20px">'
             '<p style="margin:0;font-size:11px;font-weight:700;text-transform:uppercase;'
-            'letter-spacing:1.5px;color:#d97706">More Opportunities</p>'
+            'letter-spacing:1.5px;color:#d97706">&#x1F4A1; More Opportunities</p>'
             '</td></tr></table></td></tr>'
         )
         for i, job in enumerate(bonus, len(primary) + 1):
@@ -126,7 +131,7 @@ def send_email(jobs: list[dict]):
         f'</td></tr></table></td></tr></table></body></html>'
     )
 
-    subject = f"🔔 {len(jobs)} New Jobs (JOB-AGGREGATOR) — {datetime.now().strftime('%b %d, %I:%M %p')}"
+    subject = f"🔔 {len(jobs)} New Jobs (JOB-AGGREGATOR) — {now_ct.strftime('%b %d, %I:%M %p')} CT"
     html_body = "\n".join(parts)
 
     if settings.EMAIL_BACKEND == "resend":
