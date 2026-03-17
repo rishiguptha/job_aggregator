@@ -34,9 +34,11 @@ SYSTEM_PROMPT = (
     "   - \"3+ YoE\" means the hard minimum is 3 or more years\n"
     "3. suitable: is this realistically suitable for someone with 0-2 YoE? (true/false)\n"
     "4. clearance: does it require security clearance or US citizenship? (true/false)\n"
-    "5. phd: does it strictly require a PhD (not just preferred)? (true/false)\n\n"
+    "5. phd: does it strictly require a PhD (not just preferred)? (true/false)\n"
+    "6. title_flag: true if the title is misleading — e.g. title says entry-level but JD is clearly senior/staff/lead/manager, "
+    "or title omits seniority but JD demands 5+ years, architecture ownership, or team leadership. false otherwise.\n\n"
     "Return ONLY a compact JSON array (no newlines, no indentation), one object per job:\n"
-    '[{"id":0,"min_years":2,"level":"1-2 YoE","suitable":true,"clearance":false,"phd":false},...]\n'
+    '[{"id":0,"min_years":2,"level":"1-2 YoE","suitable":true,"clearance":false,"phd":false,"title_flag":false},...]\n'
     "No explanation, no markdown fences, no pretty-printing. Just one line of JSON."
 )
 
@@ -210,6 +212,7 @@ async def _classify_chunk(
                     chunk[idx]["llm_suitable"] = bool(r.get("suitable", False))
                     chunk[idx]["llm_clearance"] = bool(r.get("clearance", False))
                     chunk[idx]["llm_phd"] = bool(r.get("phd", False))
+                    chunk[idx]["llm_title_flag"] = bool(r.get("title_flag", False))
             return
 
         except asyncio.TimeoutError:

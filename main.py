@@ -97,6 +97,12 @@ async def run_pipeline():
                 flag = "clearance" if job.get("llm_clearance") else "PhD"
                 log.info(f"  🚫 LLM filtered ({flag}): {job['title']} @ {job['company']}")
                 continue
+            if has_llm and job.get("llm_title_flag") and not job.get("llm_suitable"):
+                filtered_exp += 1
+                llm_filtered += 1
+                log.info(f"  🚫 LLM filtered (Misleading title): {job['title']} @ {job['company']} "
+                         f"({job.get('llm_level', '?')} — {job.get('llm_min_years', '?')}+ yrs)")
+                continue
             if has_llm and not job.get("llm_suitable"):
                 filtered_exp += 1
                 llm_filtered += 1
