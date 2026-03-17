@@ -5,7 +5,7 @@ from src.filters.experience import passes_experience_filter
 from src.filters.clearance import passes_clearance_filter
 from src.filters.phd import passes_phd_filter
 from src.filters.jd_parser import clean_html, parse_jd_sections
-from src.filters.date import is_posted_today, is_posted_current_year
+from src.filters.date import passes_date_filter
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -79,7 +79,8 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
                 posted_on = job.get("postedOn", "")
 
                 if settings.FETCH_ONLY_TODAY:
-                    if posted_on not in ("Posted Today", "Posted Yesterday"):
+                    allowed = ("Posted Today",) if settings.TODAY_ONLY else ("Posted Today", "Posted Yesterday")
+                    if posted_on not in allowed:
                         continue
 
                 job_url = f"{base_url}/en-US/{site}{external_path}"
@@ -99,11 +100,11 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
 
                 clean_text = clean_html(description).lower() if description else ""
                 sections = parse_jd_sections(clean_text) if clean_text else None
-                passes_exp, min_exp, exp_level = passes_experience_filter(clean_text, sections=sections) if clean_text else (True, None, "❓ Not Specified")
+                passes_exp, min_exp, exp_level, confidence = passes_experience_filter(clean_text, sections=sections) if clean_text else (True, None, "❓ Not Specified", 1.0)
                 passes_cl = passes_clearance_filter(clean_text) if clean_text else True
                 passes_p = passes_phd_filter(clean_text) if clean_text else True
 
-                all_jobs.append({
+                job_dict = {
                     "title": title,
                     "company": name,
                     "platform": "workday",
@@ -117,7 +118,12 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
                     "passes_phd": passes_p,
                     "match_type": match_type,
                     "posted_at": posted_on,
-                })
+                    "confidence": confidence,
+                }
+                if (confidence < 0.4 or exp_level == "❓ Not Specified") and clean_text:
+                    req = (sections.get("required", "") if sections else "") or clean_text
+                    job_dict["_jd_excerpt"] = req[:2000]
+                all_jobs.append(job_dict)
 
         except Exception as e:
             log.debug(f"Workday/{name} (keyword={keyword}): {e}")

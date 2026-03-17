@@ -47,9 +47,17 @@ class Settings:
     MAX_EXPERIENCE_YEARS = 2
     FILTER_LOCATION_US = True
     FETCH_ONLY_TODAY = True
+    TODAY_ONLY = False  # strict today-only mode (no yesterday), toggled by --today CLI flag
 
     # H1B Sponsorship
     H1B_SPONSORS = H1B_SPONSORS
+
+    # LLM Recheck (optional — omit API key to disable)
+    LLM_BASE_URL = os.getenv("LLM_BASE_URL", "")
+    LLM_API_KEY = os.getenv("LLM_API_KEY", "")
+    LLM_MODEL = os.getenv("LLM_MODEL", "")
+    LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "30"))
+    LLM_CONFIDENCE_THRESHOLD = float(os.getenv("LLM_CONFIDENCE_THRESHOLD", "0.4"))
 
     # App Config
     CHECK_INTERVAL_MINUTES = 60

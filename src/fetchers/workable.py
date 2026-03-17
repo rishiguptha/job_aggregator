@@ -44,7 +44,7 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
 
             clean_desc = clean_html(description).lower() if description else ""
             sections = parse_jd_sections(clean_desc) if clean_desc else None
-            passes, min_exp, exp_level = passes_experience_filter(clean_desc, sections=sections)
+            passes, min_exp, exp_level, confidence = passes_experience_filter(clean_desc, sections=sections)
             passes_clearance = passes_clearance_filter(clean_desc)
             passes_phd = passes_phd_filter(clean_desc)
             location = job.get("city", "") or job.get("country", "Unknown")
@@ -52,13 +52,11 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
             posted_at = job.get("published_on", "")
 
             from src.config.settings import settings
-            from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
-            if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "workable") or is_posted_yesterday(posted_at, "workable")):
-                continue
-            if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "workable"):
+            from src.filters.date import passes_date_filter
+            if not passes_date_filter(posted_at, "workable"):
                 continue
 
-            jobs.append({
+            job_dict = {
                 "title": title,
                 "company": company,
                 "platform": "workable",
@@ -72,7 +70,12 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
                 "passes_phd": passes_phd,
                 "match_type": match_type,
                 "posted_at": posted_at,
-            })
+                "confidence": confidence,
+            }
+            if confidence < 0.4 or exp_level == "❓ Not Specified":
+                req = (sections.get("required", "") if sections else "") or clean_desc
+                job_dict["_jd_excerpt"] = req[:2000]
+            jobs.append(job_dict)
         return jobs
     except Exception as e:
         log.debug(f"Workable/{company}: {e}")

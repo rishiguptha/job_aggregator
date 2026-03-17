@@ -42,9 +42,16 @@ def send_email(jobs: list[dict]):
 
     def _card(idx, job, accent):
         icon = PLATFORM_ICONS.get(job["platform"], "")
-        exp_text = f"{job['experience']} yrs" if job["experience"] else "Not specified"
+        exp_val = job.get("experience")
+        if exp_val:
+            exp_text = f"{exp_val}+ yrs"
+        elif exp_val == 0:
+            exp_text = "Entry level"
+        else:
+            exp_text = "Not specified"
         exp_level = job.get("exp_level", "")
-        s = EXP_BADGE.get(exp_level, "background:#f3f4f6;color:#6b7280")
+        badge_key = exp_level.replace(" (LLM)", "") if exp_level else ""
+        s = EXP_BADGE.get(badge_key, "background:#f3f4f6;color:#6b7280")
         exp_pill = (
             f' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
             f'border-radius:10px;{s}">{exp_level}</span>'

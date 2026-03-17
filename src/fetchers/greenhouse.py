@@ -32,20 +32,18 @@ async def fetch_greenhouse(company: str, session: aiohttp.ClientSession) -> list
             content = job.get("content", "")
             clean_content = clean_html(content).lower()
             sections = parse_jd_sections(clean_content)
-            passes, min_exp, exp_level = passes_experience_filter(clean_content, sections=sections)
+            passes, min_exp, exp_level, confidence = passes_experience_filter(clean_content, sections=sections)
             passes_clearance = passes_clearance_filter(clean_content)
             passes_phd = passes_phd_filter(clean_content)
 
             posted_at = job.get("first_published_at") or job.get("updated_at", "")
 
             from src.config.settings import settings
-            from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
-            if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "greenhouse") or is_posted_yesterday(posted_at, "greenhouse")):
-                continue
-            if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "greenhouse"):
+            from src.filters.date import passes_date_filter
+            if not passes_date_filter(posted_at, "greenhouse"):
                 continue
 
-            jobs.append({
+            job_dict = {
                 "title": title,
                 "company": company,
                 "platform": "greenhouse",
@@ -59,7 +57,12 @@ async def fetch_greenhouse(company: str, session: aiohttp.ClientSession) -> list
                 "passes_phd": passes_phd,
                 "match_type": match_type,
                 "posted_at": posted_at,
-            })
+                "confidence": confidence,
+            }
+            if confidence < 0.4 or exp_level == "❓ Not Specified":
+                req = (sections.get("required", "") if sections else "") or clean_content
+                job_dict["_jd_excerpt"] = req[:2000]
+            jobs.append(job_dict)
         return jobs
     except Exception as e:
         log.debug(f"Greenhouse/{company}: {e}")

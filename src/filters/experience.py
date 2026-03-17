@@ -22,6 +22,8 @@ from src.filters.jd_parser import (
     split_sentences,
     SECTION_REQUIRED,
     SECTION_PREFERRED,
+    SECTION_ABOUT,
+    SECTION_RESPONSIBILITIES,
     SECTION_UNSTRUCTURED,
 )
 
@@ -203,12 +205,82 @@ def _extract_ranges_from_text(text: str) -> list[tuple[float, float]]:
     return all_ranges
 
 
+# ── Confidence Scoring ────────────────────────────────────────────────────────
+
+def _compute_confidence(
+    sections: dict[str, str] | None,
+    extraction_text: str,
+    all_ranges: list[tuple[float, float]],
+    text_lower: str,
+) -> float:
+    """
+    How confident we are in the regex filter's verdict (0.0–1.0).
+
+    Weights (sum to 1.0 max):
+      Section structure  0–0.35   clear "Required" section vs nothing
+      Numeric clarity    0–0.30   unambiguous experience numbers found
+      Preference noise   0–0.20   no preference signals near exp numbers
+      Context presence   0–0.15   experience-related words exist at all
+    """
+    has_exp_words = any(
+        kw in text_lower for kw in ("experience", "years", "year", "yr", "yrs")
+    )
+    has_negation = bool(_NEGATION_RE.search(text_lower))
+    has_new_grad = any(s in text_lower for s in NEW_GRAD_SIGNALS)
+
+    # No experience info at all → we genuinely don't know the requirement
+    if not has_exp_words and not all_ranges and not has_negation and not has_new_grad:
+        return 0.30
+
+    score = 0.0
+
+    # 1. Section structure (max +0.35)
+    if sections:
+        required = sections.get(SECTION_REQUIRED, "")
+        if required.strip():
+            score += 0.35
+        elif any(
+            sections.get(k, "").strip()
+            for k in (SECTION_PREFERRED, SECTION_ABOUT, SECTION_RESPONSIBILITIES)
+        ):
+            score += 0.15
+
+    # 2. Numeric clarity (max +0.30)
+    if all_ranges:
+        score += 0.30
+    elif has_negation:
+        score += 0.25
+    elif has_new_grad:
+        score += 0.20
+
+    # 3. Preference ambiguity (max +0.20)
+    pref_near_exp = False
+    for sent in split_sentences(extraction_text):
+        if _EXP_PATTERN.search(sent) and PREFERENCE_SIGNALS.search(sent):
+            pref_near_exp = True
+            break
+    if not pref_near_exp:
+        score += 0.20
+
+    # 4. Context presence (max +0.15)
+    if has_exp_words:
+        score += 0.10
+    if all_ranges or has_negation or has_new_grad:
+        score += 0.05
+
+    # Contradictory signals penalty
+    if has_new_grad and all_ranges and max(r[0] for r in all_ranges) >= 3:
+        score -= 0.20
+
+    return min(round(score, 2), 1.0)
+
+
 # ── Public API ───────────────────────────────────────────────────────────────
 
 def passes_experience_filter(
     description: str,
     sections: dict[str, str] | None = None,
-) -> tuple[bool, int | None, str]:
+) -> tuple[bool, int | None, str, float]:
     """
     Analyze job description for experience requirements.
 
@@ -219,7 +291,7 @@ def passes_experience_filter(
                   from that section (preferred/about sections are ignored).
 
     Returns:
-        (passes_filter, min_years_required, experience_level_tag)
+        (passes_filter, min_years_required, experience_level_tag, confidence)
 
     Logic:
       - Section-aware: only enforces on "required" section when available
@@ -230,18 +302,20 @@ def passes_experience_filter(
       - Company-context sentences are ignored
     """
     if not description or not description.strip():
-        return True, None, EXP_NOT_SPECIFIED
+        return True, None, EXP_NOT_SPECIFIED, 0.70
 
     text_lower = description.lower()
 
     # Fast path: no year-related words at all
     if not any(kw in text_lower for kw in ("experience", "years", "year", "yr", "yrs")):
         level = EXP_NEW_GRAD if any(s in text_lower for s in NEW_GRAD_SIGNALS) else EXP_NOT_SPECIFIED
-        return True, None, level
+        conf = _compute_confidence(sections, text_lower, [], text_lower)
+        return True, None, level, conf
 
     # Fast path: explicit negation (word-boundary safe)
     if _NEGATION_RE.search(text_lower):
-        return True, 0, EXP_NEW_GRAD
+        conf = _compute_confidence(sections, text_lower, [], text_lower)
+        return True, 0, EXP_NEW_GRAD, conf
 
     # Determine which text to extract experience numbers from
     extraction_text = text_lower
@@ -258,11 +332,13 @@ def passes_experience_filter(
 
     if not all_ranges:
         level = EXP_NEW_GRAD if any(s in text_lower for s in NEW_GRAD_SIGNALS) else EXP_NOT_SPECIFIED
-        return True, None, level
+        conf = _compute_confidence(sections, extraction_text, all_ranges, text_lower)
+        return True, None, level, conf
 
     min_required = max(r[0] for r in all_ranges)
 
     level = _classify_level(min_required, text_lower)
     passes = min_required <= settings.MAX_EXPERIENCE_YEARS
+    conf = _compute_confidence(sections, extraction_text, all_ranges, text_lower)
 
-    return passes, int(min_required), level
+    return passes, int(min_required), level, conf

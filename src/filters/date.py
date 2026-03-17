@@ -1,7 +1,19 @@
 from datetime import datetime
+from src.config.settings import settings
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
+
+
+def passes_date_filter(date_str: str, platform: str) -> bool:
+    """Single entry point for date filtering used by all fetchers."""
+    if not settings.FETCH_ONLY_TODAY:
+        return is_posted_current_year(date_str, platform)
+    if is_posted_today(date_str, platform):
+        return True
+    if not settings.TODAY_ONLY and is_posted_yesterday(date_str, platform):
+        return True
+    return False
 
 def is_posted_today(date_str: str, platform: str) -> bool:
     """Check if a job was posted today based on the date string from the API."""

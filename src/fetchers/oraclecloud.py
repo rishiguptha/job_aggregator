@@ -5,7 +5,7 @@ from src.filters.experience import passes_experience_filter
 from src.filters.clearance import passes_clearance_filter
 from src.filters.phd import passes_phd_filter
 from src.filters.jd_parser import clean_html, parse_jd_sections
-from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
+from src.filters.date import passes_date_filter
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -87,21 +87,19 @@ async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession
                 clean_desc = clean_html(description).lower()
                 sections = parse_jd_sections(clean_desc)
 
-                passes, min_exp, exp_level = passes_experience_filter(clean_desc, sections=sections)
+                passes, min_exp, exp_level, confidence = passes_experience_filter(clean_desc, sections=sections)
                 passes_clearance = passes_clearance_filter(clean_desc)
                 passes_phd = passes_phd_filter(clean_desc)
 
                 location = job.get("PrimaryLocation", "Unknown")
                 posted_at = job.get("PostedDate", "")
 
-                if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "oraclecloud") or is_posted_yesterday(posted_at, "oraclecloud")):
-                    continue
-                if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "oraclecloud"):
+                if not passes_date_filter(posted_at, "oraclecloud"):
                     continue
 
                 job_url = f"{job_base_url}/{job_id}"
 
-                all_jobs.append({
+                job_dict = {
                     "title": title,
                     "company": name,
                     "platform": "oraclecloud",
@@ -115,7 +113,12 @@ async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession
                     "passes_phd": passes_phd,
                     "match_type": match_type,
                     "posted_at": posted_at,
-                })
+                    "confidence": confidence,
+                }
+                if confidence < 0.4 or exp_level == "❓ Not Specified":
+                    req = (sections.get("required", "") if sections else "") or clean_desc
+                    job_dict["_jd_excerpt"] = req[:2000]
+                all_jobs.append(job_dict)
 
         except Exception as e:
             log.debug(f"OracleCloud/{name} (keyword={keyword}): {e}")

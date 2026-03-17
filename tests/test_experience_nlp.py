@@ -240,7 +240,7 @@ def run_flat_tests():
     failed = 0
 
     for i, (text, exp_passes, exp_min, exp_level) in enumerate(FLAT_TEXT_TESTS, 1):
-        act_passes, act_min, act_level = passes_experience_filter(text)
+        act_passes, act_min, act_level, _confidence = passes_experience_filter(text)
 
         pass_ok = act_passes == exp_passes
         min_ok = act_min == exp_min
@@ -272,7 +272,7 @@ def run_section_tests():
     for i, tc in enumerate(SECTION_TESTS, 1):
         text = tc["text"]
         sections = parse_jd_sections(text.lower())
-        act_passes, act_min, act_level = passes_experience_filter(
+        act_passes, act_min, act_level, _confidence = passes_experience_filter(
             text.lower(), sections=sections
         )
         exp_passes, exp_min, exp_level = tc["expected"]

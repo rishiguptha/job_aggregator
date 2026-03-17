@@ -8,7 +8,7 @@ from src.filters.experience import passes_experience_filter
 from src.filters.clearance import passes_clearance_filter
 from src.filters.phd import passes_phd_filter
 from src.filters.jd_parser import clean_html, parse_jd_sections
-from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
+from src.filters.date import passes_date_filter
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -96,20 +96,18 @@ async def fetch_successfactors(company_config: dict, session: aiohttp.ClientSess
                 raw_date = pub_el.text.strip() if pub_el is not None and pub_el.text else ""
                 posted_at = _rfc2822_to_iso(raw_date)
 
-                if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "successfactors") or is_posted_yesterday(posted_at, "successfactors")):
-                    continue
-                if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "successfactors"):
+                if not passes_date_filter(posted_at, "successfactors"):
                     continue
 
                 description_html = desc_el.text if desc_el is not None and desc_el.text else ""
                 clean_text = clean_html(description_html).lower() if description_html else ""
                 sections = parse_jd_sections(clean_text) if clean_text else None
 
-                passes_exp, min_exp, exp_level = passes_experience_filter(clean_text, sections=sections) if clean_text else (True, None, "❓ Not Specified")
+                passes_exp, min_exp, exp_level, confidence = passes_experience_filter(clean_text, sections=sections) if clean_text else (True, None, "❓ Not Specified", 1.0)
                 passes_cl = passes_clearance_filter(clean_text) if clean_text else True
                 passes_p = passes_phd_filter(clean_text) if clean_text else True
 
-                all_jobs.append({
+                job_dict = {
                     "title": title,
                     "company": name,
                     "platform": "successfactors",
@@ -123,7 +121,12 @@ async def fetch_successfactors(company_config: dict, session: aiohttp.ClientSess
                     "passes_phd": passes_p,
                     "match_type": match_type,
                     "posted_at": posted_at,
-                })
+                    "confidence": confidence,
+                }
+                if (confidence < 0.4 or exp_level == "❓ Not Specified") and clean_text:
+                    req = (sections.get("required", "") if sections else "") or clean_text
+                    job_dict["_jd_excerpt"] = req[:2000]
+                all_jobs.append(job_dict)
 
         except ET.ParseError as e:
             log.debug(f"SuccessFactors/{name} RSS parse error (keyword={keyword}): {e}")

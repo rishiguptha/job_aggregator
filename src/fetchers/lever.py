@@ -38,7 +38,7 @@ async def fetch_lever(company: str, session: aiohttp.ClientSession) -> list[dict
             full_text = f"{desc} {additional}"
             clean_text = clean_html(full_text).lower()
             sections = parse_jd_sections(clean_text)
-            passes, min_exp, exp_level = passes_experience_filter(clean_text, sections=sections)
+            passes, min_exp, exp_level, confidence = passes_experience_filter(clean_text, sections=sections)
             passes_clearance = passes_clearance_filter(clean_text)
             passes_phd = passes_phd_filter(clean_text)
 
@@ -54,13 +54,11 @@ async def fetch_lever(company: str, session: aiohttp.ClientSession) -> list[dict
                     pass
 
             from src.config.settings import settings
-            from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
-            if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "lever") or is_posted_yesterday(posted_at, "lever")):
-                continue
-            if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "lever"):
+            from src.filters.date import passes_date_filter
+            if not passes_date_filter(posted_at, "lever"):
                 continue
 
-            jobs.append({
+            job_dict = {
                 "title": title,
                 "company": company,
                 "platform": "lever",
@@ -74,7 +72,12 @@ async def fetch_lever(company: str, session: aiohttp.ClientSession) -> list[dict
                 "passes_phd": passes_phd,
                 "match_type": match_type,
                 "posted_at": posted_at,
-            })
+                "confidence": confidence,
+            }
+            if confidence < 0.4 or exp_level == "❓ Not Specified":
+                req = (sections.get("required", "") if sections else "") or clean_text
+                job_dict["_jd_excerpt"] = req[:2000]
+            jobs.append(job_dict)
         return jobs
     except Exception as e:
         log.debug(f"Lever/{company}: {e}")
