@@ -1,11 +1,10 @@
 import aiohttp
-import re
-import html
 from src.config.settings import settings
 from src.filters.title import matches_title
 from src.filters.experience import passes_experience_filter
 from src.filters.clearance import passes_clearance_filter
 from src.filters.phd import passes_phd_filter
+from src.filters.jd_parser import clean_html, parse_jd_sections
 from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
 from src.utils.logger import get_logger
 
@@ -16,7 +15,6 @@ HEADERS = {
     "Accept": "application/json",
 }
 
-# Search keywords to query the Oracle API with (API does server-side keyword search)
 SEARCH_KEYWORDS = [
     "data engineer",
     "software engineer",
@@ -29,7 +27,7 @@ SEARCH_KEYWORDS = [
 async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession) -> list[dict]:
     """
     Fetch jobs from Oracle Cloud HCM Candidate Experience API.
-    
+
     company_config should be a dict with:
         - name: company display name
         - subdomain + region: Oracle Cloud endpoint (e.g., subdomain="eeho", region="us2")
@@ -40,7 +38,6 @@ async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession
     name = company_config["name"]
     site = company_config.get("site", "CX_1")
 
-    # Support both direct Oracle Cloud URLs and custom proxied domains
     if "domain" in company_config:
         domain = company_config["domain"]
         base_url = f"https://{domain}/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
@@ -55,7 +52,6 @@ async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession
 
     for keyword in SEARCH_KEYWORDS:
         try:
-            # Build URL manually to avoid double-encoding in finder param
             finder = f"findReqs;siteNumber={site},keyword={keyword},locationId=,locationLevel=,workplaceTypeCode=,unitId="
             url = f"{base_url}?onlyData=true&expand=requisitionList.secondaryLocations&finder={finder}&limit=25&offset=0"
 
@@ -82,24 +78,22 @@ async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession
                 if not match_type:
                     continue
 
-                # Build description from available fields
                 desc_parts = []
                 for field in ["ShortDescriptionStr", "ExternalQualificationsStr", "ExternalResponsibilitiesStr"]:
                     val = job.get(field)
                     if val:
                         desc_parts.append(val)
                 description = " ".join(desc_parts)
-                description = html.unescape(description)
-                clean_desc = re.sub(r'<[^>]+>', ' ', description).lower()
+                clean_desc = clean_html(description).lower()
+                sections = parse_jd_sections(clean_desc)
 
-                passes, min_exp, exp_level = passes_experience_filter(clean_desc)
+                passes, min_exp, exp_level = passes_experience_filter(clean_desc, sections=sections)
                 passes_clearance = passes_clearance_filter(clean_desc)
                 passes_phd = passes_phd_filter(clean_desc)
 
                 location = job.get("PrimaryLocation", "Unknown")
                 posted_at = job.get("PostedDate", "")
 
-                # Date filtering
                 if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "oraclecloud") or is_posted_yesterday(posted_at, "oraclecloud")):
                     continue
                 if not settings.FETCH_ONLY_TODAY and not is_posted_current_year(posted_at, "oraclecloud"):
@@ -116,7 +110,7 @@ async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession
                     "description": clean_desc[:500],
                     "experience": min_exp,
                     "passes_filter": passes,
-                "exp_level": exp_level,
+                    "exp_level": exp_level,
                     "passes_clearance": passes_clearance,
                     "passes_phd": passes_phd,
                     "match_type": match_type,

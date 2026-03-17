@@ -720,4 +720,14 @@ COMPANY_SLUGS = {
         {"name": "blackrock",    "instance": "blackrock.wd1",     "site": "BlackRock_Professional"},
         {"name": "etsy",         "instance": "etsy.wd5",          "site": "Etsy_Careers"},
     ],
+
+    # ── SmartRecruiters (public JSON API, no auth) ──────────────
+    "smartrecruiters": [
+        "ServiceNow",
+    ],
+
+    # ── SAP SuccessFactors (public RSS feed) ────────────────────
+    "successfactors": [
+        {"name": "sap", "domain": "jobs.sap.com"},
+    ],
 }

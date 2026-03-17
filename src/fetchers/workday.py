@@ -1,11 +1,10 @@
 import aiohttp
-import re
-import html
 from src.config.settings import settings
 from src.filters.title import matches_title
 from src.filters.experience import passes_experience_filter
 from src.filters.clearance import passes_clearance_filter
 from src.filters.phd import passes_phd_filter
+from src.filters.jd_parser import clean_html, parse_jd_sections
 from src.filters.date import is_posted_today, is_posted_current_year
 from src.utils.logger import get_logger
 
@@ -17,7 +16,6 @@ HEADERS = {
     "Content-Type": "application/json",
 }
 
-# Keywords to search Workday with (server-side keyword search)
 SEARCH_KEYWORDS = [
     "data engineer",
     "software engineer",
@@ -40,7 +38,7 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
     name = company_config["name"]
     instance = company_config["instance"]
     site = company_config["site"]
-    company_slug = instance.split(".")[0]  # e.g., "nvidia" from "nvidia.wd5"
+    company_slug = instance.split(".")[0]
 
     base_url = f"https://{instance}.myworkdayjobs.com"
     api_url = f"{base_url}/wday/cxs/{company_slug}/{site}/jobs"
@@ -68,7 +66,6 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
 
             for job in postings:
                 external_path = job.get("externalPath", "")
-                # Use path as unique ID
                 if external_path in seen_ids:
                     continue
                 seen_ids.add(external_path)
@@ -81,16 +78,12 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
                 location = job.get("locationsText", "") or ""
                 posted_on = job.get("postedOn", "")
 
-                # Date filtering — Workday uses relative strings like "Posted 2 Days Ago",
-                # "Posted Today", "Posted 30+ Days Ago", "Posted Yesterday"
                 if settings.FETCH_ONLY_TODAY:
                     if posted_on not in ("Posted Today", "Posted Yesterday"):
                         continue
-                # If not filtering to today, accept all recent posts (skip "Posted 30+ Days Ago" optionally)
 
                 job_url = f"{base_url}/en-US/{site}{external_path}"
 
-                # Fetch job details to get the description and location for accurate filtering
                 detail_url = f"https://{instance}.myworkdayjobs.com/wday/cxs/{company_slug}/{site}{external_path}"
                 description = ""
                 try:
@@ -99,14 +92,14 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
                             detail_data = await d_resp.json()
                             job_info = detail_data.get("jobPostingInfo", {})
                             description = job_info.get("jobDescription", "")
-                            # Fall back to detail location when listing didn't provide one
                             if not location.strip():
                                 location = job_info.get("location", "") or "Unknown"
                 except Exception as e:
                     log.debug(f"Workday detail fetch error ({name}): {e}")
 
-                clean_text = re.sub(r'<[^>]+>', ' ', html.unescape(description)).lower() if description else ""
-                passes_exp, min_exp, exp_level = passes_experience_filter(clean_text) if clean_text else (True, None, "❓ Not Specified")
+                clean_text = clean_html(description).lower() if description else ""
+                sections = parse_jd_sections(clean_text) if clean_text else None
+                passes_exp, min_exp, exp_level = passes_experience_filter(clean_text, sections=sections) if clean_text else (True, None, "❓ Not Specified")
                 passes_cl = passes_clearance_filter(clean_text) if clean_text else True
                 passes_p = passes_phd_filter(clean_text) if clean_text else True
 

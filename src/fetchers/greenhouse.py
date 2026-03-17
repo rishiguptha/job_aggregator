@@ -1,10 +1,9 @@
 import aiohttp
-import re
-import html
 from src.filters.title import matches_title
 from src.filters.experience import passes_experience_filter
 from src.filters.clearance import passes_clearance_filter
 from src.filters.phd import passes_phd_filter
+from src.filters.jd_parser import clean_html, parse_jd_sections
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -31,14 +30,14 @@ async def fetch_greenhouse(company: str, session: aiohttp.ClientSession) -> list
                 continue
 
             content = job.get("content", "")
-            content = html.unescape(content)
-            clean_content = re.sub(r'<[^>]+>', ' ', content).lower()
-            passes, min_exp, exp_level = passes_experience_filter(clean_content)
+            clean_content = clean_html(content).lower()
+            sections = parse_jd_sections(clean_content)
+            passes, min_exp, exp_level = passes_experience_filter(clean_content, sections=sections)
             passes_clearance = passes_clearance_filter(clean_content)
             passes_phd = passes_phd_filter(clean_content)
 
-            posted_at = job.get("updated_at", "")
-            
+            posted_at = job.get("first_published_at") or job.get("updated_at", "")
+
             from src.config.settings import settings
             from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
             if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "greenhouse") or is_posted_yesterday(posted_at, "greenhouse")):

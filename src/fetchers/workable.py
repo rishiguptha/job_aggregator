@@ -1,10 +1,9 @@
 import aiohttp
-import re
-import html
 from src.filters.title import matches_title
 from src.filters.experience import passes_experience_filter
 from src.filters.clearance import passes_clearance_filter
 from src.filters.phd import passes_phd_filter
+from src.filters.jd_parser import clean_html, parse_jd_sections
 from src.utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -40,18 +39,18 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
                         if detail_resp.ok:
                             detail = await detail_resp.json()
                             description = detail.get("description", "")
-                            description = html.unescape(description)
-                            description = re.sub(r'<[^>]+>', ' ', description).lower()
                 except Exception:
                     pass
 
-            passes, min_exp, exp_level = passes_experience_filter(description)
-            passes_clearance = passes_clearance_filter(description)
-            passes_phd = passes_phd_filter(description)
+            clean_desc = clean_html(description).lower() if description else ""
+            sections = parse_jd_sections(clean_desc) if clean_desc else None
+            passes, min_exp, exp_level = passes_experience_filter(clean_desc, sections=sections)
+            passes_clearance = passes_clearance_filter(clean_desc)
+            passes_phd = passes_phd_filter(clean_desc)
             location = job.get("city", "") or job.get("country", "Unknown")
 
             posted_at = job.get("published_on", "")
-            
+
             from src.config.settings import settings
             from src.filters.date import is_posted_today, is_posted_yesterday, is_posted_current_year
             if settings.FETCH_ONLY_TODAY and not (is_posted_today(posted_at, "workable") or is_posted_yesterday(posted_at, "workable")):
@@ -65,7 +64,7 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
                 "platform": "workable",
                 "url": job.get("url", f"https://apply.workable.com/{company}/j/{shortcode}/"),
                 "location": location,
-                "description": description[:500],
+                "description": clean_desc[:500],
                 "experience": min_exp,
                 "passes_filter": passes,
                 "exp_level": exp_level,
