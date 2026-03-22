@@ -186,6 +186,7 @@ COMPANY_SLUGS = {
         "applovin",            # AppLovin — mobile growth & ad monetization
         "xai",                 # xAI — Elon Musk's AI company (Grok)
         "epicgames",           # Epic Games — Unreal Engine & Fortnite (slug: epicgames)
+        "wayfair"             # Wayfair — e-commerce
     ],
 
     "lever": [
