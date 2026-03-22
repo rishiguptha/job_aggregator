@@ -26,20 +26,59 @@ log = get_logger(__name__)
 _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*\n?(.*?)\n?\s*```", re.DOTALL)
 
 SYSTEM_PROMPT = (
-    "You analyze job listings for a candidate with 0-2 years of experience.\n"
-    "For each numbered job, extract and return:\n"
-    "1. min_years: the MINIMUM years of experience required (integer, 0 if none/new grad, null if truly unspecified)\n"
-    "2. level: classify as exactly one of: \"New Grad\", \"0-1 YoE\", \"1-2 YoE\", \"3+ YoE\", \"Not Specified\"\n"
-    "   - Use the MINIMUM requirement, not preferred/bonus\n"
-    "   - \"3+ YoE\" means the hard minimum is 3 or more years\n"
-    "3. suitable: is this realistically suitable for someone with 0-2 YoE? (true/false)\n"
-    "4. clearance: does it require security clearance or US citizenship? (true/false)\n"
-    "5. phd: does it strictly require a PhD (not just preferred)? (true/false)\n"
-    "6. title_flag: true if the title is misleading — e.g. title says entry-level but JD is clearly senior/staff/lead/manager, "
-    "or title omits seniority but JD demands 5+ years, architecture ownership, or team leadership. false otherwise.\n\n"
-    "Return ONLY a compact JSON array (no newlines, no indentation), one object per job:\n"
+    "You analyze job listings for a candidate with 0-2 years of professional experience.\n"
+    "For each numbered job, return exactly these 6 fields:\n\n"
+
+    "min_years (integer or null)\n"
+    "  - The MINIMUM years of professional experience that is REQUIRED (not preferred/bonus/nice-to-have).\n"
+    "  - Ranges ('2-4 years', '3 to 5 years'): use the LOWER bound.\n"
+    "  - Months: round down to nearest integer year (18 months → 1, 6 months → 0).\n"
+    "  - 'New grad', 'no experience required', 'entry level' with no YoE floor: use 0.\n"
+    "  - 'X years OR equivalent degree/bootcamp/portfolio': if the alternative is entry-level, use 0.\n"
+    "  - Internship or co-op experience listed as the only requirement: use 0.\n"
+    "  - null ONLY when experience is genuinely not mentioned at all in the entire listing.\n\n"
+
+    "level (exactly one of: 'New Grad', '0-1 YoE', '1-2 YoE', '3+ YoE', 'Not Specified')\n"
+    "  - Map min_years directly: 0 → 'New Grad', 1 → '0-1 YoE', 2 → '1-2 YoE', ≥3 → '3+ YoE', null → 'Not Specified'.\n"
+    "  - Base on the hard REQUIRED minimum, never on preferred/bonus experience.\n\n"
+
+    "suitable (true/false)\n"
+    "  - true if a 0-2 YoE candidate could realistically apply and be competitive.\n"
+    "  - false if ANY of the following apply:\n"
+    "      * min_years ≥ 3\n"
+    "      * clearance is true\n"
+    "      * phd is true\n"
+    "      * JD demands team/org leadership, people management, architecture ownership, or\n"
+    "        staff/principal/director-level scope — regardless of title or years stated\n"
+    "  - Borderline cases (min_years = 2, or '2-3 years preferred but not required'): lean true\n"
+    "    unless another disqualifier is present.\n\n"
+
+    "clearance (true/false)\n"
+    "  - true if the job REQUIRES any of: active security clearance, must be eligible for / able\n"
+    "    to obtain clearance (implies citizenship requirement), US citizenship, or US person status\n"
+    "    as a hard condition of employment.\n"
+    "  - false for: 'clearance preferred/nice-to-have', 'authorized to work in the US'\n"
+    "    (work authorization ≠ citizenship), or 'must be able to pass a background check'.\n\n"
+
+    "phd (true/false)\n"
+    "  - true ONLY if a PhD is strictly required with NO alternative path\n"
+    "    (no 'or X years experience', no 'or equivalent', no 'preferred').\n"
+    "  - false if PhD is preferred, optional, or one of several acceptable qualifications.\n\n"
+
+    "title_flag (true/false)\n"
+    "  - true if the job title materially understates the seniority demanded by the JD, e.g.:\n"
+    "      * Title is 'Junior / Entry Level / Associate / New Grad' but JD requires ≥3 years,\n"
+    "        team leadership, or staff-level ownership.\n"
+    "      * Title is 'Software Engineer' (no qualifier) but JD describes a tech lead, architect,\n"
+    "        or manager role.\n"
+    "      * Title omits level entirely but JD demands 5+ years or organizational leadership.\n"
+    "  - false when: the title already says Senior/Lead/Staff/Principal/Manager and the JD matches;\n"
+    "    or when the JD genuinely aligns with the junior/entry framing in the title.\n\n"
+
+    "Return ONLY a compact JSON array — no newlines, no indentation, no markdown fences, no commentary.\n"
+    "One object per job. The id field is the 0-based job index, matching the order they were given:\n"
     '[{"id":0,"min_years":2,"level":"1-2 YoE","suitable":true,"clearance":false,"phd":false,"title_flag":false},...]\n'
-    "No explanation, no markdown fences, no pretty-printing. Just one line of JSON."
+    "Output exactly one line of raw JSON. Nothing before it, nothing after it."
 )
 
 LLM_LEVEL_MAP = {

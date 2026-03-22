@@ -21,27 +21,50 @@ class Settings:
     EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "smtp")
     RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
     # Job Keywords
+
     TITLE_KEYWORDS = [
+        # Core DE titles
         "data engineer", "data engineering",
+        "analytics engineer",
+        "etl developer", "etl engineer",
+        "data platform engineer",
+        "data pipeline engineer",
+        "cloud data engineer",
+        "data warehouse engineer",
+        "ml data engineer",
+        # SWE titles (kept from original)
         "software development engineer", "software engineer", "software developer",
         "ai engineer",
         "backend engineer", "backend developer",
         "fullstack engineer", "full stack engineer", "full-stack engineer",
         "fullstack developer", "full stack developer", "full-stack developer",
     ]
-    TITLE_KEYWORDS_REGEX = [r'\bsde\b']  # Short abbreviations needing word-boundary matching
+
+    TITLE_KEYWORDS_REGEX = [
+        r'\bsde\b',
+        r'\bde\b',        # "DE I", "DE II" job posts
+        r'\betl\b',       # standalone ETL posts
+    ]
+
     BONUS_KEYWORDS = [
-        "analytics engineer", "etl engineer", "pipeline engineer",
         "ml engineer", "machine learning engineer",
         "platform engineer", "infrastructure engineer",
-        "cloud engineer", "devops engineer",
+        "data infrastructure engineer",
+        "data integration engineer",
+        "data operations engineer",
+        "data catalog engineer",
+        "devops engineer",
         "systems engineer",
+        "cloud engineer",
     ]
-    EXCLUDE_TITLE_PATTERN = r'\b(senior|staff|manager|principal|lead|director|vp|head|president|sr|intern|internship|co-op|coop|ii|iii|iv|v|vi|2|3|4|5|6|mid|mid-level)\b'
-    EXCLUDE_CLEARANCE_PATTERN = r'(?<!no\s)(?<!not\s)(?<!without\s)\b(top secret|ts/?sci|polygraph|security clearance|active clearance|top-secret|clearance required|us citizenship(?: required)?|u\.s\. citizen(?:ship)?)\b'
-    EXCLUDE_PHD_PATTERN = r'\b(ph\.?d\.?)\b(?!\s+(?:not\s+required|optional|preferred|or\s+equivalent|or\s+master))'
-    NEW_GRAD_PATTERN = r'\b(new grad(?:uate)?|recent grad(?:uate)?|university grad(?:uate)?|early career|entry level|entry-level)\b'
 
+    EXCLUDE_TITLE_PATTERN = r'\b(senior|staff|manager|principal|lead|director|vp|head|president|sr|intern|internship|co-op|coop|ii|iii|iv|v|vi|2|3|4|5|6|mid|mid-level)\b'
+
+    EXCLUDE_CLEARANCE_PATTERN = r'(?<!no\s)(?<!not\s)(?<!without\s)\b(top secret|ts/?sci|polygraph|security clearance|active clearance|top-secret|clearance required|us citizenship(?: required)?|u\.s\. citizen(?:ship)?)\b'
+
+    EXCLUDE_PHD_PATTERN = r'\b(ph\.?d\.?)\b(?!\s+(?:not\s+required|optional|preferred|or\s+equivalent|or\s+master))'
+
+    NEW_GRAD_PATTERN = r'\b(new grad(?:uate)?|recent grad(?:uate)?|university grad(?:uate)?|early career|entry level|entry-level|associate engineer|engineer i)\b'
 
     # Filters
     MAX_EXPERIENCE_YEARS = 2
