@@ -174,6 +174,18 @@ COMPANY_SLUGS = {
         "verkada",             # Verkada — physical security cloud platform
         "warp",                # Warp — AI-native terminal (dev tools)
         "wehrtyou",            # Hudson River Trading — quant trading  (slug: wehrtyou)
+        # ── Discovered 2026-03-21 (gap analysis) ──────────────────
+        "affirm",              # Affirm — BNPL / payments fintech
+        "block",               # Block Inc — fintech (Square, Cash App, Bitkey)
+        "asana",               # Asana — work management SaaS
+        "chime",               # Chime — neobank / consumer fintech
+        "sofi",                # SoFi — digital financial services
+        "nuro",                # Nuro — autonomous delivery robotics
+        "qualtrics",           # Qualtrics — experience management platform
+        "relativity",          # Relativity — legal tech / e-discovery (slug: relativity)
+        "applovin",            # AppLovin — mobile growth & ad monetization
+        "xai",                 # xAI — Elon Musk's AI company (Grok)
+        "epicgames",           # Epic Games — Unreal Engine & Fortnite (slug: epicgames)
     ],
 
     "lever": [
@@ -719,6 +731,15 @@ COMPANY_SLUGS = {
         # ── Discovered 2026-03-16 (follow-up verification) ────────
         {"name": "blackrock",    "instance": "blackrock.wd1",     "site": "BlackRock_Professional"},
         {"name": "etsy",         "instance": "etsy.wd5",          "site": "Etsy_Careers"},
+        # ── Discovered 2026-03-21 (web search verified) ──────────────────
+        {"name": "morgan_stanley",    "instance": "ms.wd5",        "site": "External"},
+        {"name": "fidelity",          "instance": "fmr.wd1",       "site": "FidelityCareers"},
+        {"name": "wells_fargo",       "instance": "wf.wd1",        "site": "WellsFargoJobs"},
+        {"name": "citi",              "instance": "citi.wd5",      "site": "2"},
+        {"name": "cadence",           "instance": "cadence.wd1",   "site": "External_Careers"},
+        {"name": "samsung",           "instance": "sec.wd3",       "site": "Samsung_Careers"},
+        {"name": "booking_holdings",  "instance": "priceline.wd1", "site": "BookingHoldings"},
+        {"name": "booz_allen",        "instance": "bah.wd1",       "site": "BAH_Jobs"},
     ],
 
     # ── SmartRecruiters (public JSON API, no auth) ──────────────
