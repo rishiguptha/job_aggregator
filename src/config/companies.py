@@ -584,7 +584,7 @@ COMPANY_SLUGS = {
         "silver",
         "siro",
         "skymavis",
-        "snowflake",
+        "snowflake",  # https://jobs.ashbyhq.com/snowflake/
         "snyk",
         "socket",
         "socure",
