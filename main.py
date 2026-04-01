@@ -138,6 +138,7 @@ async def run_pipeline():
             else:
                 # LLM reviewed it, no explicit years stated, but confirmed suitable for 0-2 YoE
                 job["exp_level"] = "✅ Open Level (LLM)"
+                job["experience"] = None  # clear regex-extracted years to avoid contradictory display
             if is_borderline:
                 llm_recovered += 1
             else:
