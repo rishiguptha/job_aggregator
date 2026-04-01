@@ -27,9 +27,7 @@ _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*\n?(.*?)\n?\s*```", re.DOTALL)
 
 SYSTEM_PROMPT = (
     "You analyze job listings for a candidate with ~2 years of professional experience.\n"
-    "Their core stack: Python, SQL, Spark/PySpark, Airflow, dbt, Snowflake, BigQuery, "
-    "PostgreSQL, FastAPI, LangChain, RAG/vector search, AWS, GCP, Docker.\n"
-    "For each numbered job, return exactly these 7 fields:\n\n"
+    "For each numbered job, return exactly these 6 fields:\n\n"
 
     "min_years (integer or null)\n"
     "  - The MINIMUM years of professional experience that is REQUIRED (not preferred/bonus/nice-to-have).\n"
@@ -85,20 +83,9 @@ SYSTEM_PROMPT = (
     "  - false when: the title already says Senior/Lead/Staff/Principal/Manager and the JD matches;\n"
     "    or when the JD genuinely aligns with the junior/entry framing in the title.\n\n"
 
-    "stack_relevant (true/false)\n"
-    "  - true if the JD explicitly uses or requires any of the candidate's stack:\n"
-    "    Python, SQL, Spark/PySpark, Airflow, dbt, Snowflake, BigQuery, PostgreSQL,\n"
-    "    FastAPI, LangChain, LLM/RAG/vector search, AWS, GCP, Docker, Kafka, Flink,\n"
-    "    Databricks, Redshift, data pipelines, ETL, data warehouse, ML pipelines.\n"
-    "  - true also for generic SWE/DE/ML roles with no specific stack mentioned\n"
-    "    (stack-agnostic roles remain relevant).\n"
-    "  - false ONLY if the JD is primarily built around technologies the candidate does NOT use:\n"
-    "    COBOL, mainframe, SAP/ABAP, R (as primary language), MATLAB, embedded C/C++,\n"
-    "    .NET/C# enterprise stacks with no Python, or Oracle PL/SQL as the sole focus.\n\n"
-
     "Return ONLY a compact JSON array — no newlines, no indentation, no markdown fences, no commentary.\n"
     "One object per job. The id field is the 0-based job index, matching the order they were given:\n"
-    '[{"id":0,"min_years":2,"level":"1-2 YoE","suitable":true,"clearance":false,"phd":false,"title_flag":false,"stack_relevant":true},...]\n'
+    '[{"id":0,"min_years":2,"level":"1-2 YoE","suitable":true,"clearance":false,"phd":false,"title_flag":false},...]\n'
     "Output exactly one line of raw JSON. Nothing before it, nothing after it."
 )
 
@@ -273,7 +260,6 @@ async def _classify_chunk(
                     chunk[idx]["llm_clearance"] = bool(r.get("clearance", False))
                     chunk[idx]["llm_phd"] = bool(r.get("phd", False))
                     chunk[idx]["llm_title_flag"] = bool(r.get("title_flag", False))
-                    chunk[idx]["llm_stack_relevant"] = bool(r.get("stack_relevant", True))
             return
 
         except asyncio.TimeoutError:

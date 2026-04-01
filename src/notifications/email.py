@@ -69,13 +69,6 @@ def send_email(jobs: list[dict]):
                 'border-radius:10px;background:#fef9c3;color:#854d0e">⚠️ Sponsorship Unknown</span>'
             )
 
-        stack_pill = ""
-        if not job.get("llm_stack_relevant", True):
-            stack_pill = (
-                ' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
-                'border-radius:10px;background:#fee2e2;color:#991b1b">⚡ Stack Mismatch</span>'
-            )
-
         repost_pill = ""
         if job.get("reposted"):
             repost_pill = (
@@ -100,7 +93,7 @@ def send_email(jobs: list[dict]):
             f'<span style="color:#374151;font-weight:600">{job["company"]}</span>'
             f' &middot; {job["location"]}</p>'
             f'<p style="margin:0 0 4px;font-size:12px;color:#9ca3af">'
-            f'Exp: {exp_text}{exp_pill}{h1b_pill}{stack_pill}</p>'
+            f'Exp: {exp_text}{exp_pill}{h1b_pill}</p>'
             f'{posted}'
             f'<p style="margin:12px 0 0">'
             f'<a href="{job["url"]}" style="display:block;text-align:center;'
@@ -154,7 +147,6 @@ def send_email(jobs: list[dict]):
         '<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#374151">Status Badges</p>'
         '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">✅ H1B Sponsor &mdash; confirmed H1B sponsoring company</p>'
         '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">⚠️ Sponsorship Unknown &mdash; not in sponsors list</p>'
-        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">⚡ Stack Mismatch &mdash; role primarily uses tech outside your stack</p>'
         '<p style="margin:0;font-size:11px;color:#4b5563">🔁 Reposted &mdash; same role seen in a previous email</p>'
         '</td>'
         '</tr>'
