@@ -63,7 +63,7 @@ class Settings:
         "data catalog engineer",
     ]
 
-    EXCLUDE_TITLE_PATTERN = r'\b(senior|staff|manager|principal|lead|director|vp|head|president|sr|intern|internship|co-op|coop|ii|iii|iv|v|vi|2|3|4|5|6|mid|mid-level)\b'
+    EXCLUDE_TITLE_PATTERN = r'\b(senior|staff|manager|principal|lead|director|avp|vp|head|president|sr|intern|internship|co-op|coop|ii|iii|iv|v|vi|2|3|4|5|6|mid|mid-level)\b'
 
     EXCLUDE_CLEARANCE_PATTERN = r'(?<!no\s)(?<!not\s)(?<!without\s)\b(top secret|ts/?sci|polygraph|security clearance|active clearance|top-secret|clearance required|us citizenship(?: required)?|u\.s\. citizen(?:ship)?)\b'
 
