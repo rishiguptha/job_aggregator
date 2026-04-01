@@ -124,33 +124,40 @@ def send_email(jobs: list[dict]):
         f'</td></tr>'
     )
 
-    # Legend
+    # Legend — pill grid
+    def _legend_pill(text, style):
+        return (
+            f'<span style="display:inline-block;font-size:10px;padding:2px 8px;'
+            f'border-radius:10px;{style}">{text}</span>'
+        )
+
+    LEGEND_ROWS = [
+        # (pill_text, pill_style, description)
+        ("🎓 New Grad",          "background:#dcfce7;color:#166534", "entry-level, no YoE"),
+        ("📗 0-1 YoE",           "background:#dcfce7;color:#166534", "up to 1 yr required"),
+        ("📘 1-2 YoE",           "background:#dbeafe;color:#1e40af", "1–2 yrs required"),
+        ("✅ Open Level",         "background:#d1fae5;color:#065f46", "AI reviewed, suitable, no explicit years"),
+        ("❓ Not Specified",      "background:#f3f4f6;color:#6b7280", "could not determine"),
+        ("✅ H1B Sponsor",        "background:#dcfce7;color:#166534", "confirmed H1B sponsoring company"),
+        ("⚠️ Sponsorship Unknown","background:#fef9c3;color:#854d0e", "not in sponsors list"),
+        ("🔁 Reposted",          "background:#ede9fe;color:#5b21b6", "seen in a previous email"),
+    ]
+
+    legend_items = "".join(
+        f'<tr>'
+        f'<td style="padding:3px 12px 3px 0;white-space:nowrap">{_legend_pill(text, style)}</td>'
+        f'<td style="padding:3px 0;font-size:11px;color:#6b7280">{desc}</td>'
+        f'</tr>'
+        for text, style, desc in LEGEND_ROWS
+    )
+
     parts.append(
         '<tr><td style="padding:20px 24px 8px">'
         '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
-        '<td style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:6px;padding:12px 16px">'
-        '<p style="margin:0 0 8px;font-size:10px;font-weight:700;text-transform:uppercase;'
-        'letter-spacing:1.2px;color:#6b7280">&#x1F4CB; Badge Guide</p>'
-        '<table width="100%" cellpadding="0" cellspacing="0" border="0">'
-        '<tr valign="top">'
-        # Left column — experience
-        '<td width="50%" style="padding-right:8px">'
-        '<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#374151">Experience Level</p>'
-        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">🎓 New Grad &mdash; explicitly entry-level / no YoE</p>'
-        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">📗 0-1 YoE &mdash; up to 1 yr required</p>'
-        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">📘 1-2 YoE &mdash; 1-2 yrs required</p>'
-        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">✅ Open Level &mdash; AI reviewed, suitable for you, no explicit years</p>'
-        '<p style="margin:0;font-size:11px;color:#4b5563">❓ Not Specified &mdash; could not determine</p>'
-        '</td>'
-        # Right column — status badges
-        '<td width="50%" style="padding-left:8px;border-left:1px solid #e5e7eb">'
-        '<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#374151">Status Badges</p>'
-        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">✅ H1B Sponsor &mdash; confirmed H1B sponsoring company</p>'
-        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">⚠️ Sponsorship Unknown &mdash; not in sponsors list</p>'
-        '<p style="margin:0;font-size:11px;color:#4b5563">🔁 Reposted &mdash; same role seen in a previous email</p>'
-        '</td>'
-        '</tr>'
-        '</table>'
+        '<td style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:6px;padding:14px 18px">'
+        '<p style="margin:0 0 10px;font-size:10px;font-weight:700;text-transform:uppercase;'
+        'letter-spacing:1.2px;color:#9ca3af">Badge Guide</p>'
+        f'<table cellpadding="0" cellspacing="0" border="0">{legend_items}</table>'
         '</td></tr></table>'
         '</td></tr>'
     )
