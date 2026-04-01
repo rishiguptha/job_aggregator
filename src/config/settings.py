@@ -32,30 +32,35 @@ class Settings:
         "cloud data engineer",
         "data warehouse engineer",
         "ml data engineer",
-        # SWE titles (kept from original)
+        # SWE titles
         "software development engineer", "software engineer", "software developer",
-        "ai engineer",
         "backend engineer", "backend developer",
-        "fullstack engineer", "full stack engineer", "full-stack engineer",
-        "fullstack developer", "full stack developer", "full-stack developer",
+        # AI / ML titles (primary — ranked #3)
+        "ai engineer", "ml engineer", "machine learning engineer",
+        "ai/ml engineer", "applied ml engineer", "applied ai engineer",
     ]
 
     TITLE_KEYWORDS_REGEX = [
         r'\bsde\b',
+        r'\bswe\b',       # "SWE New Grad", "New Grad SWE"
         r'\bde\b',        # "DE I", "DE II" job posts
         r'\betl\b',       # standalone ETL posts
+        r'\bmle\b',       # "MLE" abbreviation for ML Engineer
     ]
 
     BONUS_KEYWORDS = [
-        "ml engineer", "machine learning engineer",
-        "platform engineer", "infrastructure engineer",
+        # Fullstack/frontend — bonus; auto-promoted to primary if title has new-grad/entry-level language
+        "fullstack engineer", "full stack engineer", "full-stack engineer",
+        "fullstack developer", "full stack developer", "full-stack developer",
+        "frontend engineer", "front end engineer", "front-end engineer",
+        "frontend developer", "front end developer", "front-end developer",
+        # Analytics / platform / infra — lowest priority bonus
+        "platform engineer",
+        "infrastructure engineer",
         "data infrastructure engineer",
         "data integration engineer",
         "data operations engineer",
         "data catalog engineer",
-        "devops engineer",
-        "systems engineer",
-        "cloud engineer",
     ]
 
     EXCLUDE_TITLE_PATTERN = r'\b(senior|staff|manager|principal|lead|director|vp|head|president|sr|intern|internship|co-op|coop|ii|iii|iv|v|vi|2|3|4|5|6|mid|mid-level)\b'
@@ -68,7 +73,7 @@ class Settings:
 
     # Filters
     MAX_EXPERIENCE_YEARS = 2
-    FILTER_LOCATION_US = True
+    FILTER_LOCATION_US = True   # filter to US-only (remote/hybrid/onsite within US)
     FETCH_ONLY_TODAY = True
     TODAY_ONLY = False  # strict today-only mode (no yesterday), toggled by --today CLI flag
 
@@ -85,6 +90,7 @@ class Settings:
     # App Config
     CHECK_INTERVAL_MINUTES = 60
     SEEN_JOBS_FILE = BASE_DIR / "seen_jobs_v2.json"
+    REPOST_FILE = BASE_DIR / "seen_jobs_repost.json"
     MAX_WORKERS = 40
     ASYNC_SEMAPHORE = 100
 

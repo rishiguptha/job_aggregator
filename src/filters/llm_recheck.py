@@ -26,8 +26,10 @@ log = get_logger(__name__)
 _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*\n?(.*?)\n?\s*```", re.DOTALL)
 
 SYSTEM_PROMPT = (
-    "You analyze job listings for a candidate with 0-2 years of professional experience.\n"
-    "For each numbered job, return exactly these 6 fields:\n\n"
+    "You analyze job listings for a candidate with ~2 years of professional experience.\n"
+    "Their core stack: Python, SQL, Spark/PySpark, Airflow, dbt, Snowflake, BigQuery, "
+    "PostgreSQL, FastAPI, LangChain, RAG/vector search, AWS, GCP, Docker.\n"
+    "For each numbered job, return exactly these 7 fields:\n\n"
 
     "min_years (integer or null)\n"
     "  - The MINIMUM years of professional experience that is REQUIRED (not preferred/bonus/nice-to-have).\n"
@@ -43,15 +45,23 @@ SYSTEM_PROMPT = (
     "  - Base on the hard REQUIRED minimum, never on preferred/bonus experience.\n\n"
 
     "suitable (true/false)\n"
-    "  - true if a 0-2 YoE candidate could realistically apply and be competitive.\n"
-    "  - false if ANY of the following apply:\n"
+    "  - true if a ~2 YoE candidate could realistically apply and be competitive.\n"
+    "  - false if ANY of the following hard disqualifiers apply:\n"
     "      * min_years ≥ 3\n"
     "      * clearance is true\n"
     "      * phd is true\n"
-    "      * JD demands team/org leadership, people management, architecture ownership, or\n"
-    "        staff/principal/director-level scope — regardless of title or years stated\n"
-    "  - Borderline cases (min_years = 2, or '2-3 years preferred but not required'): lean true\n"
-    "    unless another disqualifier is present.\n\n"
+    "      * JD demands managing/mentoring other engineers, org leadership, people management\n"
+    "      * JD describes architecture ownership across multiple large systems\n"
+    "      * JD uses: 'extensive experience', 'deep expertise', 'seasoned', 'proven track record',\n"
+    "        'independently drive', 'define the roadmap', 'set technical direction', 'staff-level'\n"
+    "  - When min_years is null, use these signals to judge suitable:\n"
+    "      LEAN TRUE  — JD says 'new grad / entry-level / junior / associate', OR describes\n"
+    "                   building features with guidance, learning, growth mindset, mentorship provided\n"
+    "      LEAN FALSE — JD uses vague seniority words ('strong background', 'extensive', 'deep')\n"
+    "                   without any entry-level signal; OR scope implies 5+ years of ownership\n"
+    "      DEFAULT    — If no strong signal either way AND scope seems like individual-contributor\n"
+    "                   feature work without leadership demands: lean TRUE (give benefit of doubt)\n"
+    "  - Borderline (min_years = 2, '2-3 years preferred'): lean true unless another disqualifier.\n\n"
 
     "clearance (true/false)\n"
     "  - true if the job REQUIRES any of: active security clearance, must be eligible for / able\n"
@@ -69,15 +79,26 @@ SYSTEM_PROMPT = (
     "  - true if the job title materially understates the seniority demanded by the JD, e.g.:\n"
     "      * Title is 'Junior / Entry Level / Associate / New Grad' but JD requires ≥3 years,\n"
     "        team leadership, or staff-level ownership.\n"
-    "      * Title is 'Software Engineer' (no qualifier) but JD describes a tech lead, architect,\n"
-    "        or manager role.\n"
-    "      * Title omits level entirely but JD demands 5+ years or organizational leadership.\n"
+    "      * Title is 'Software Engineer' / 'Data Engineer' (no qualifier) but JD describes a\n"
+    "        tech lead, architect, or manager role, or requires 5+ years.\n"
+    "      * Title omits level entirely but JD demands organizational leadership or 5+ years.\n"
     "  - false when: the title already says Senior/Lead/Staff/Principal/Manager and the JD matches;\n"
     "    or when the JD genuinely aligns with the junior/entry framing in the title.\n\n"
 
+    "stack_relevant (true/false)\n"
+    "  - true if the JD explicitly uses or requires any of the candidate's stack:\n"
+    "    Python, SQL, Spark/PySpark, Airflow, dbt, Snowflake, BigQuery, PostgreSQL,\n"
+    "    FastAPI, LangChain, LLM/RAG/vector search, AWS, GCP, Docker, Kafka, Flink,\n"
+    "    Databricks, Redshift, data pipelines, ETL, data warehouse, ML pipelines.\n"
+    "  - true also for generic SWE/DE/ML roles with no specific stack mentioned\n"
+    "    (stack-agnostic roles remain relevant).\n"
+    "  - false ONLY if the JD is primarily built around technologies the candidate does NOT use:\n"
+    "    COBOL, mainframe, SAP/ABAP, R (as primary language), MATLAB, embedded C/C++,\n"
+    "    .NET/C# enterprise stacks with no Python, or Oracle PL/SQL as the sole focus.\n\n"
+
     "Return ONLY a compact JSON array — no newlines, no indentation, no markdown fences, no commentary.\n"
     "One object per job. The id field is the 0-based job index, matching the order they were given:\n"
-    '[{"id":0,"min_years":2,"level":"1-2 YoE","suitable":true,"clearance":false,"phd":false,"title_flag":false},...]\n'
+    '[{"id":0,"min_years":2,"level":"1-2 YoE","suitable":true,"clearance":false,"phd":false,"title_flag":false,"stack_relevant":true},...]\n'
     "Output exactly one line of raw JSON. Nothing before it, nothing after it."
 )
 
@@ -252,6 +273,7 @@ async def _classify_chunk(
                     chunk[idx]["llm_clearance"] = bool(r.get("clearance", False))
                     chunk[idx]["llm_phd"] = bool(r.get("phd", False))
                     chunk[idx]["llm_title_flag"] = bool(r.get("title_flag", False))
+                    chunk[idx]["llm_stack_relevant"] = bool(r.get("stack_relevant", True))
             return
 
         except asyncio.TimeoutError:

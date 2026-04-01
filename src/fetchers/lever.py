@@ -74,9 +74,7 @@ async def fetch_lever(company: str, session: aiohttp.ClientSession) -> list[dict
                 "posted_at": posted_at,
                 "confidence": confidence,
             }
-            if confidence < 0.4 or exp_level == "❓ Not Specified":
-                req = (sections.get("required", "") if sections else "") or clean_text
-                job_dict["_jd_excerpt"] = req[:2000]
+            job_dict["_jd_excerpt"] = clean_text[:2000]
             jobs.append(job_dict)
         return jobs
     except Exception as e:

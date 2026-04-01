@@ -36,6 +36,7 @@ def send_email(jobs: list[dict]):
         "🎓 New Grad": "background:#dcfce7;color:#166534",
         "📗 0-1 YoE": "background:#dcfce7;color:#166534",
         "📘 1-2 YoE": "background:#dbeafe;color:#1e40af",
+        "✅ Open Level": "background:#d1fae5;color:#065f46",
         "🔶 3+ YoE": "background:#fef3c7;color:#92400e",
         "❓ Not Specified": "background:#f3f4f6;color:#6b7280",
     }
@@ -57,10 +58,31 @@ def send_email(jobs: list[dict]):
             f'border-radius:10px;{s}">{exp_level}</span>'
         ) if exp_level else ""
         sponsor = _normalize_company(job["company"]) in H1B_SPONSORS
-        h1b_pill = (
-            ' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
-            'border-radius:10px;background:#dcfce7;color:#166534">H1B Sponsor</span>'
-        ) if sponsor else ""
+        if sponsor:
+            h1b_pill = (
+                ' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
+                'border-radius:10px;background:#dcfce7;color:#166534">✅ H1B Sponsor</span>'
+            )
+        else:
+            h1b_pill = (
+                ' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
+                'border-radius:10px;background:#fef9c3;color:#854d0e">⚠️ Sponsorship Unknown</span>'
+            )
+
+        stack_pill = ""
+        if not job.get("llm_stack_relevant", True):
+            stack_pill = (
+                ' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
+                'border-radius:10px;background:#fee2e2;color:#991b1b">⚡ Stack Mismatch</span>'
+            )
+
+        repost_pill = ""
+        if job.get("reposted"):
+            repost_pill = (
+                ' <span style="display:inline-block;font-size:10px;padding:2px 8px;'
+                'border-radius:10px;background:#ede9fe;color:#5b21b6">🔁 Reposted</span>'
+            )
+
         posted = (
             f'<p style="margin:0;font-size:11px;color:#b0b0b0">'
             f'Posted {job["posted_at"][:10]}</p>'
@@ -72,13 +94,13 @@ def send_email(jobs: list[dict]):
             f'<td style="border:1px solid #e5e7eb;border-left:3px solid {accent};'
             f'border-radius:6px;padding:16px 20px">'
             f'<p style="margin:0 0 6px;font-size:15px;font-weight:600;color:#111827">'
-            f'#{idx} &mdash; {job["title"]}</p>'
+            f'#{idx} &mdash; {job["title"]}{repost_pill}</p>'
             f'<p style="margin:0 0 6px;font-size:13px;color:#6b7280">'
             f'{icon} {job["platform"].title()} &middot; '
             f'<span style="color:#374151;font-weight:600">{job["company"]}</span>'
             f' &middot; {job["location"]}</p>'
             f'<p style="margin:0 0 4px;font-size:12px;color:#9ca3af">'
-            f'Exp: {exp_text}{exp_pill}{h1b_pill}</p>'
+            f'Exp: {exp_text}{exp_pill}{h1b_pill}{stack_pill}</p>'
             f'{posted}'
             f'<p style="margin:12px 0 0">'
             f'<a href="{job["url"]}" style="display:block;text-align:center;'
@@ -107,6 +129,38 @@ def send_email(jobs: list[dict]):
         f'{now_str} &middot; &le;{settings.MAX_EXPERIENCE_YEARS} yrs exp &middot; '
         f'{len(primary)} primary + {len(bonus)} bonus</p>'
         f'</td></tr>'
+    )
+
+    # Legend
+    parts.append(
+        '<tr><td style="padding:20px 24px 8px">'
+        '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
+        '<td style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:6px;padding:12px 16px">'
+        '<p style="margin:0 0 8px;font-size:10px;font-weight:700;text-transform:uppercase;'
+        'letter-spacing:1.2px;color:#6b7280">&#x1F4CB; Badge Guide</p>'
+        '<table width="100%" cellpadding="0" cellspacing="0" border="0">'
+        '<tr valign="top">'
+        # Left column — experience
+        '<td width="50%" style="padding-right:8px">'
+        '<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#374151">Experience Level</p>'
+        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">🎓 New Grad &mdash; explicitly entry-level / no YoE</p>'
+        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">📗 0-1 YoE &mdash; up to 1 yr required</p>'
+        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">📘 1-2 YoE &mdash; 1-2 yrs required</p>'
+        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">✅ Open Level &mdash; AI reviewed, suitable for you, no explicit years</p>'
+        '<p style="margin:0;font-size:11px;color:#4b5563">❓ Not Specified &mdash; could not determine</p>'
+        '</td>'
+        # Right column — status badges
+        '<td width="50%" style="padding-left:8px;border-left:1px solid #e5e7eb">'
+        '<p style="margin:0 0 4px;font-size:11px;font-weight:600;color:#374151">Status Badges</p>'
+        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">✅ H1B Sponsor &mdash; confirmed H1B sponsoring company</p>'
+        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">⚠️ Sponsorship Unknown &mdash; not in sponsors list</p>'
+        '<p style="margin:0 0 3px;font-size:11px;color:#4b5563">⚡ Stack Mismatch &mdash; role primarily uses tech outside your stack</p>'
+        '<p style="margin:0;font-size:11px;color:#4b5563">🔁 Reposted &mdash; same role seen in a previous email</p>'
+        '</td>'
+        '</tr>'
+        '</table>'
+        '</td></tr></table>'
+        '</td></tr>'
     )
 
     if primary:

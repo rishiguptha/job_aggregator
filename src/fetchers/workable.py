@@ -72,9 +72,7 @@ async def fetch_workable(company: str, session: aiohttp.ClientSession) -> list[d
                 "posted_at": posted_at,
                 "confidence": confidence,
             }
-            if confidence < 0.4 or exp_level == "❓ Not Specified":
-                req = (sections.get("required", "") if sections else "") or clean_desc
-                job_dict["_jd_excerpt"] = req[:2000]
+            job_dict["_jd_excerpt"] = clean_desc[:2000]
             jobs.append(job_dict)
         return jobs
     except Exception as e:

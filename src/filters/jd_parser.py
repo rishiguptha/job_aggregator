@@ -88,7 +88,7 @@ def split_sentences(text: str) -> list[str]:
 REQUIRED_HEADERS = re.compile(
     r"(?:minimum|required|must.?have|basic|what you.?(?:ll )?need|"
     r"you (?:should )?have|qualifications?|requirements?|"
-    r"what we.?re looking for|who you are|"
+    r"what we.?re looking for|who you are|about you|"
     r"skills?\s*(?:and |& )?(?:qualifications?|requirements?)|essential)",
     re.IGNORECASE,
 )

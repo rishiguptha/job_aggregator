@@ -120,9 +120,8 @@ async def fetch_workday(company_config: dict, session: aiohttp.ClientSession) ->
                     "posted_at": posted_on,
                     "confidence": confidence,
                 }
-                if (confidence < 0.4 or exp_level == "❓ Not Specified") and clean_text:
-                    req = (sections.get("required", "") if sections else "") or clean_text
-                    job_dict["_jd_excerpt"] = req[:2000]
+                if clean_text:
+                    job_dict["_jd_excerpt"] = clean_text[:2000]
                 all_jobs.append(job_dict)
 
         except Exception as e:

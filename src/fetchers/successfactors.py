@@ -123,9 +123,8 @@ async def fetch_successfactors(company_config: dict, session: aiohttp.ClientSess
                     "posted_at": posted_at,
                     "confidence": confidence,
                 }
-                if (confidence < 0.4 or exp_level == "❓ Not Specified") and clean_text:
-                    req = (sections.get("required", "") if sections else "") or clean_text
-                    job_dict["_jd_excerpt"] = req[:2000]
+                if clean_text:
+                    job_dict["_jd_excerpt"] = clean_text[:2000]
                 all_jobs.append(job_dict)
 
         except ET.ParseError as e:

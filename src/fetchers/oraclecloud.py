@@ -115,9 +115,7 @@ async def fetch_oraclecloud(company_config: dict, session: aiohttp.ClientSession
                     "posted_at": posted_at,
                     "confidence": confidence,
                 }
-                if confidence < 0.4 or exp_level == "❓ Not Specified":
-                    req = (sections.get("required", "") if sections else "") or clean_desc
-                    job_dict["_jd_excerpt"] = req[:2000]
+                job_dict["_jd_excerpt"] = clean_desc[:2000]
                 all_jobs.append(job_dict)
 
         except Exception as e:
